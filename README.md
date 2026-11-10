@@ -1,13 +1,22 @@
-# Flight Simulator 3D v2.8 — browser build
+# Flight Simulator 3D v2.8 — original Scratch browser build
 
-This repository preserves the original Scratch project and packages it as a standalone browser game.
+This repository runs the original Scratch project through the pinned TurboWarp Packager. The original project remains the single source of truth for gameplay.
 
-## Source of truth
+## Source of truth and scope
 
-- Original project: `Flight Simulator 3D v2.8.sb3`
-- Reconstruction strategy: run the original Scratch project through the pinned TurboWarp Packager runtime rather than approximating its 3D renderer, flight physics, controls, terrain, or effects.
+- Original project: `Flight Simulator 3D v2.8.sb3` (preserved unchanged)
+- Runtime: TurboWarp Packager 3.14.0
+- Build script: `scripts/package-project.cjs`
 - Source analysis: `scripts/analyze-scratch.mjs`
-- Browser build: `scripts/package-project.cjs`
+
+The graphics profile changes renderer quality only:
+- Scratch stage coordinates remain **480 × 360**.
+- Project timing remains **30 Hz**.
+- Visual interpolation is enabled for smoother presentation.
+- High-quality pen rendering is enabled.
+- Maximum packaged texture dimension is raised to **4096 px**.
+
+No Scratch scripts, flight physics, controls, variables, terrain logic, or gameplay behavior are rewritten by the build.
 
 ## Build
 
@@ -18,16 +27,12 @@ npm install --no-save --no-package-lock @turbowarp/packager@3.14.0
 npm run build
 ```
 
-The standalone HTML game is written to `dist/index.html`.
+The standalone game is written to `dist/index.html`. The build also records the source project's SHA-256 and the applied graphics profile in `dist/build-info.json`.
 
-## Deployment
+## Deployment and validation
 
-The `Deploy Flight Simulator to GitHub Pages` workflow builds the standalone HTML and deploys the `dist` directory from the `scratch-rebuild` branch.
-
-The original `.sb3` is retained unchanged. Work is isolated on `scratch-rebuild`; the `main` branch remains untouched until the build and browser checks pass.
+Pull requests run the build workflow without deploying. Merges to `main` build and deploy the standalone HTML to GitHub Pages.
 
 ## Attribution
 
-Original Scratch project: **Flight Simulator 3D v2.8**, by **WO997**. The original project and its assets remain the source material for this browser package.
-
-Build validation is performed automatically before the Pages deployment.
+Original Scratch project: **Flight Simulator 3D v2.8**, by **WO997**. The original `.sb3` file and its assets remain unmodified.
