@@ -91,7 +91,7 @@ function createGaugeTexture(title) {
       ctx.lineTo(cx + Math.sin(a) * 108, cy - Math.cos(a) * 108); ctx.stroke();
     }
     const values = title === "ASI" ? ["0","40","80","120","160"] :
-      title === "ALT" ? ["0","200","400","600","800"] :
+      title === "ALT" ? ["0","250","500","750","1000"] :
       title === "VSI" ? ["-10","-5","0","5","10"] :
       title === "RPM" ? ["0","1","2","3"] : ["N","E","S","W"];
     ctx.font = "bold 18px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
