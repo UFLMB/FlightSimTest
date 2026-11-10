@@ -99,6 +99,49 @@ export function createAirport(scene){
  addServiceVehicle(5,54,0xe8eceb);
  g.userData.detailFeatures={taxiwayLights:taxiwayLightCount,papiUnits:4,parkingStands:standXs.length,serviceVehicles:2};
 
+ // Rotating green/white aerodrome beacon on the control tower.
+ const beacon=new THREE.Group();beacon.position.set(-57,33.7,-28);g.add(beacon);
+ const beaconBase=new THREE.Mesh(new THREE.CylinderGeometry(.3,.42,.42,12),metal);beaconBase.position.y=.2;beacon.add(beaconBase);
+ const beaconGreen=new THREE.Mesh(new THREE.BoxGeometry(.34,.42,.22),new THREE.MeshStandardMaterial({color:0x6fffb1,emissive:0x18e878,emissiveIntensity:2.4,roughness:.2}));beaconGreen.position.set(0,.62,.35);beacon.add(beaconGreen);
+ const beaconWhite=new THREE.Mesh(new THREE.BoxGeometry(.34,.42,.22),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:2.2,roughness:.2}));beaconWhite.position.set(0,.62,-.35);beacon.add(beaconWhite);
+ const beaconGlow=new THREE.PointLight(0x8dffc0,2.2,42,2);beaconGlow.position.set(0,.7,0);beacon.add(beaconGlow);
+ const beaconTargetA=new THREE.Object3D();beaconTargetA.position.set(0,-12,130);beacon.add(beaconTargetA);
+ const beaconTargetB=new THREE.Object3D();beaconTargetB.position.set(0,-12,-130);beacon.add(beaconTargetB);
+ const beaconSpotA=new THREE.SpotLight(0x8dffc0,95,430,Math.PI/14,.72,2);beaconSpotA.position.set(0,.7,0);beaconSpotA.target=beaconTargetA;beacon.add(beaconSpotA);
+ const beaconSpotB=new THREE.SpotLight(0xffffff,95,430,Math.PI/14,.72,2);beaconSpotB.position.set(0,.7,0);beaconSpotB.target=beaconTargetB;beacon.add(beaconSpotB);
+ // Extended approach lighting and threshold identification.
+ const approachWhite=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xe9f6ff,emissiveIntensity:1.4});
+ const approachGreen=new THREE.MeshStandardMaterial({color:0x9fffd0,emissive:0x32ff9c,emissiveIntensity:1.5});
+ const approachRed=new THREE.MeshStandardMaterial({color:0xff514c,emissive:0xff1f1f,emissiveIntensity:1.35});
+ let approachLightCount=0;
+ for(let z=-225;z<=-135;z+=10){
+  const light=new THREE.Mesh(new THREE.CylinderGeometry(.13,.18,.16,8),approachWhite);light.position.set(0,.14,z);g.add(light);approachLightCount++;
+ }
+ for(const x of [-16,-12,-8,-4,4,8,12,16]){
+  const light=new THREE.Mesh(new THREE.CylinderGeometry(.13,.18,.16,8),approachGreen);light.position.set(x,.14,-128);g.add(light);approachLightCount++;
+ }
+ for(let x=-12;x<=12;x+=6){
+  const light=new THREE.Mesh(new THREE.CylinderGeometry(.13,.18,.16,8),approachRed);light.position.set(x,.14,4);g.add(light);approachLightCount++;
+ }
+ // Reflective taxiway direction signs at the apron/runway junction.
+ const signFace=new THREE.MeshStandardMaterial({color:0x164c39,emissive:0x062013,emissiveIntensity:.25,roughness:.42});
+ const signText=new THREE.MeshBasicMaterial({color:0xfff3bf});
+ const addTaxiSign=(x,z,label)=>{
+  const sign=new THREE.Group();sign.position.set(x,.12,z);
+  const post=new THREE.Mesh(new THREE.CylinderGeometry(.055,.07,1.7,8),metal);post.position.y=.85;sign.add(post);
+  const panel=new THREE.Mesh(new THREE.BoxGeometry(2.2,.82,.16),signFace);panel.position.y=1.85;sign.add(panel);
+  const canvas=document.createElement("canvas");canvas.width=256;canvas.height=96;
+  const ctx=canvas.getContext("2d");ctx.fillStyle="#164c39";ctx.fillRect(0,0,256,96);ctx.strokeStyle="#d8c98c";ctx.lineWidth=5;ctx.strokeRect(3,3,250,90);ctx.fillStyle="#fff3bf";ctx.font="bold 58px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(label,128,49);
+  const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
+  const lettering=new THREE.Mesh(new THREE.PlaneGeometry(1.9,.68),new THREE.MeshBasicMaterial({map:texture,transparent:true}));lettering.position.set(0,1.85,.091);sign.add(lettering);
+  g.add(sign);return sign;
+ };
+ const taxiSigns=[addTaxiSign(24,2,"A"),addTaxiSign(4,112,"RWY")];
+ g.userData.beacon=beacon;
+ g.userData.detailFeatures.approachLights=approachLightCount;
+ g.userData.detailFeatures.taxiSigns=taxiSigns.length;
+
+
  // Windsock and access road.
  const sockPole=new THREE.Mesh(new THREE.CylinderGeometry(.08,.12,6,7),metal);sockPole.position.set(-78,3,36);g.add(sockPole);
  const sock=new THREE.Mesh(new THREE.ConeGeometry(.7,4.5,8,1,true),new THREE.MeshStandardMaterial({color:0xf1eee0,side:THREE.DoubleSide}));sock.rotation.z=-Math.PI/2;sock.position.set(-76,5.4,36);g.add(sock);
