@@ -11,11 +11,22 @@ export function createLivingLandscape(scene,terrainHeightAt,tileAt){
  [[-300,450],[-210,350],[-80,260],[60,220],[240,250],[420,190]]
  ];
  for(const path of paths){
-  const points=path.map(([x,z])=>new THREE.Vector3(x,terrainHeightAt(x,z)+.35,z));
+  const points=path.map(([x,z])=>new THREE.Vector3(x,terrainHeightAt(x,z),z));
   const curve=new THREE.CatmullRomCurve3(points);
-  scene.add(new THREE.Mesh(new THREE.TubeGeometry(curve,100,4.1,7,false),shoulderMat));
-  scene.add(new THREE.Mesh(new THREE.TubeGeometry(curve,100,2.8,7,false),roadMat));
-  for(let i=0;i<100;i+=6){const p=curve.getPoint(i/100),dash=new THREE.Mesh(new THREE.BoxGeometry(.2,.06,3),new THREE.MeshBasicMaterial({color:0xd7d2b5}));dash.position.copy(p);dash.position.y+=2.78;dash.rotation.y=Math.atan2(curve.getTangent(i/100).x,curve.getTangent(i/100).z);scene.add(dash);}
+  const makeStrip=(width,offset,material)=>{
+   const positions=[],indices=[],segments=180,side=new THREE.Vector3();
+   for(let i=0;i<=segments;i++){
+    const t=i/segments,p=curve.getPointAt(t),tangent=curve.getTangentAt(t);
+    side.set(tangent.z,0,-tangent.x).normalize();
+    const y=terrainHeightAt(p.x,p.z)+offset;
+    positions.push(p.x+side.x*width/2,y,p.z+side.z*width/2,p.x-side.x*width/2,y,p.z-side.z*width/2);
+    if(i<segments){const a=i*2;indices.push(a,a+1,a+2,a+1,a+3,a+2);}
+   }
+   const geo=new THREE.BufferGeometry();geo.setAttribute("position",new THREE.Float32BufferAttribute(positions,3));geo.setIndex(indices);geo.computeVertexNormals();
+   const mesh=new THREE.Mesh(geo,material);mesh.receiveShadow=true;scene.add(mesh);
+  };
+  makeStrip(9,.14,shoulderMat);makeStrip(5.8,.19,roadMat);
+  for(let i=0;i<180;i+=10){const t=i/180,p=curve.getPointAt(t),tan=curve.getTangentAt(t);const dash=new THREE.Mesh(new THREE.BoxGeometry(.18,.035,3.1),new THREE.MeshBasicMaterial({color:0xd7d2b5}));dash.position.set(p.x,terrainHeightAt(p.x,p.z)+.23,p.z);dash.rotation.y=Math.atan2(tan.x,tan.z);scene.add(dash);}
  }
  // Farmsteads and scattered houses create scale and recognizable settlement patterns.
  const houseMat=new THREE.MeshStandardMaterial({color:0xc5bca8,roughness:.9}),roofMat=new THREE.MeshStandardMaterial({color:0x76564a,roughness:.9}),windowMat=new THREE.MeshStandardMaterial({color:0x4d7380,roughness:.25});
