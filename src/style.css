@@ -25,3 +25,18 @@
 }
 @media(max-height:560px) and (max-width:900px){.mobile-flight-controls{grid-template-columns:116px minmax(0,1fr);left:7px;right:7px;bottom:5px}.mobile-stick-panel,.mobile-action-panel{padding:5px}.control-panel-heading{height:14px}.stick-base{width:min(100%,108px);margin-top:3px}.mobile-control-grid{grid-template-rows:repeat(2,minmax(43px,1fr));gap:4px;margin-top:3px}.mobile-control{min-height:43px}.mobile-control svg{width:14px;height:14px}.mobile-control small{display:none}.telemetry{top:56px}.telemetry-card{padding:4px}.topbar{height:48px}.brand-mark{width:27px;height:27px}}
 @media(min-width:701px){.mobile-flight-controls{display:none}}
+/* Calibrated device-gyroscope flight controls */
+.mobile-flight-controls{grid-template-columns:minmax(126px,.9fr) minmax(0,1.35fr)}
+.mobile-gyro-panel{min-width:0;padding:8px;background:rgba(5,15,24,.84);border:1px solid rgba(205,230,235,.22);border-radius:15px;backdrop-filter:blur(14px);box-shadow:0 8px 28px rgba(0,0,0,.24);pointer-events:auto;display:flex;flex-direction:column}
+.gyro-visual{position:relative;width:min(100%,min(35vw,166px));aspect-ratio:1;margin:7px auto 5px;border-radius:50%;background:radial-gradient(circle,rgba(63,104,111,.25),rgba(8,22,32,.94) 68%);border:1px solid rgba(207,231,234,.3);box-shadow:inset 0 0 26px rgba(0,0,0,.55),0 0 20px rgba(85,190,198,.07);overflow:hidden}
+.gyro-ring{position:absolute;border:1px solid rgba(177,215,220,.23);border-radius:50%;inset:12%}.gyro-ring-inner{inset:31%;border-style:dashed;opacity:.6}
+.gyro-axis{position:absolute;background:rgba(197,222,226,.17);pointer-events:none}.gyro-axis-x{width:1px;height:82%;left:50%;top:9%}.gyro-axis-y{height:1px;width:82%;top:50%;left:9%}
+.gyro-indicator{position:absolute;z-index:2;left:50%;top:50%;width:26%;height:26%;margin:-13%;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(190,238,117,.9);background:radial-gradient(circle at 35% 28%,rgba(194,235,137,.78),rgba(54,112,84,.88) 62%,rgba(12,35,37,.98));box-shadow:0 0 18px rgba(184,230,107,.25);transition:transform .08s linear;will-change:transform}
+.gyro-indicator span{width:28%;height:28%;border-radius:50%;background:#f2f8e8;box-shadow:0 0 8px #f2f8e8}
+.gyro-label{position:absolute;color:rgba(218,235,235,.55);font:6px 'DM Mono',monospace;letter-spacing:.6px}.gyro-label-top{top:5px;left:50%;transform:translateX(-50%)}.gyro-label-side{right:5px;top:50%;transform:translateY(-50%)}
+.gyro-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}.gyro-actions button{min-width:0;height:30px;border-radius:7px;font:700 7px 'DM Mono',monospace;letter-spacing:.3px}
+.gyro-enable{border:1px solid rgba(184,230,107,.65);background:linear-gradient(145deg,rgba(90,132,62,.8),rgba(29,63,45,.95));color:#f0f8e8}
+.gyro-calibrate{border:1px solid rgba(199,222,228,.25);background:rgba(31,52,64,.94);color:#dce8e9}.gyro-calibrate:disabled{opacity:.35}
+.gyro-message{min-height:22px;margin-top:6px;color:#9db1b9;font:6px/1.4 'DM Mono',monospace;text-align:center}
+@media(max-width:700px){.mobile-gyro-panel{padding:8px}.gyro-visual{width:min(100%,min(35vw,166px))}.gyro-actions button{height:28px;font-size:6.5px}}
+@media(max-height:560px) and (max-width:900px){.mobile-flight-controls{grid-template-columns:116px minmax(0,1fr)}.mobile-gyro-panel{padding:5px}.gyro-visual{width:min(100%,108px);margin:3px auto}.gyro-actions button{height:23px}.gyro-message{display:none}}
