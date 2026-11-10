@@ -216,7 +216,7 @@ export function createAircraft(scene) {
       exterior.add(pane);
     }
     // Wing lift struts and cabin door seam.
-    addBetween(root, [side * .78, -.62, .12], [side * 5.25, .18, .48], .055, metal);
+    addBetween(exterior, [side * .78, -.62, .12], [side * 5.25, .18, .48], .055, metal);
     const door = new THREE.Mesh(new THREE.BoxGeometry(.025, 1.15, 1.45), metal);
     door.position.set(side * .574, .02, -.1);
     exterior.add(door);
@@ -316,7 +316,7 @@ export function createAircraft(scene) {
   const strobe = new THREE.Mesh(new THREE.SphereGeometry(.065, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
   strobe.position.set(0, .2, -5.05);
   exterior.add(strobe);
-  addBetween(root, [-6.1, -.04, .45], [-6.55, -.04, .45], .025, metal);
+  addBetween(exterior, [-6.1, -.04, .45], [-6.55, -.04, .45], .025, metal);
 
   root.scale.setScalar(.9);
   scene.add(root);
