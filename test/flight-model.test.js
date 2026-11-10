@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { FlightModel } from "../src/flight/FlightModel.js";
 import { WeatherSystem } from "../src/flight/WeatherSystem.js";
-import { Vector3 } from "three";
+import { Vector3, Group, Mesh, BoxGeometry, MeshBasicMaterial } from "three";
 import { createAircraft, instrumentNeedleAngles } from "../src/aircraft/Aircraft.js";
 import { Scene } from "three";
 import { TERRAIN_GRID, tileAt, terrainHeightAt } from "../src/world/World.js";
@@ -191,11 +191,11 @@ test("airport includes taxiway lighting, PAPI guidance, parking stands and ramp 
 });
 
 
-test("detailed C172 GLB attachment aligns the airframe and keeps procedural fallback safe", async () => {
+test("detailed C172 GLB attachment aligns the airframe and keeps procedural fallback safe", () => {
   const scene = new Scene();
   const aircraft = createAircraft(scene);
-  const imported = new (await import("three")).Group();
-  imported.add(new (await import("three")).Mesh(new (await import("three")).BoxGeometry(8, 2, 11), new (await import("three")).MeshBasicMaterial()));
+  const imported = new Group();
+  imported.add(new Mesh(new BoxGeometry(8, 2, 11), new MeshBasicMaterial()));
   const result = aircraft.attachDetailedModel(imported);
   assert.equal(aircraft.detailedModel, imported);
   assert.equal(aircraft.proceduralExterior.visible, false);
