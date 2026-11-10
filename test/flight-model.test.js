@@ -226,7 +226,7 @@ test("PBR surface texture loader preserves headless procedural test fallback", (
 test("living landscape responds to wind with turbine speed and bird drift", () => {
   const scene = new Scene();
   const landscape = createLivingLandscape(scene, terrainHeightAt, tileAt);
-  assert.deepEqual(landscape.stats, { windTurbines: 4, birds: 15 });
+  assert.deepEqual(landscape.stats, { windTurbines: 4, birds: 15, instancedHouses: 34 });
   const calmStart = landscape.turbines[0].rotation.z;
   landscape.update(1, new Vector3(0, 0, -2));
   const calmDelta = landscape.turbines[0].rotation.z - calmStart;
