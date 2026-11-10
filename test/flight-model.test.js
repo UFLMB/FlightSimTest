@@ -7,6 +7,7 @@ import { createAircraft, instrumentNeedleAngles } from "../src/aircraft/Aircraft
 import { Scene } from "three";
 import { TERRAIN_GRID, tileAt, terrainHeightAt } from "../src/world/World.js";
 import { createAirport } from "../src/world/Airport.js";
+import { createLivingLandscape } from "../src/world/LivingLandscape.js";
 import { loadSurfaceTexture } from "../src/world/SurfaceTextures.js";
 
 const step = (model, seconds, dt = 1 / 60) => {
@@ -133,6 +134,7 @@ test("civil airframe builds cockpit instruments, glazing and control surfaces", 
   aircraft.update(model, 1 / 60);
   assert.equal(aircraft.instrumentNeedles.length, 6);
   assert.ok(aircraft.proceduralExterior.children.length > 25);
+  assert.equal(aircraft.root.children.length, 2, "all fallback airframe geometry stays inside the exterior group");
   assert.ok(aircraft.cockpit.children.length >= 9);
   assert.equal(aircraft.gearGroup.visible, true);
   assert.equal(scene.children.includes(aircraft.root), true);
@@ -210,4 +212,19 @@ test("detailed C172 GLB attachment aligns the airframe and keeps procedural fall
 
 test("PBR surface texture loader preserves headless procedural test fallback", () => {
   assert.equal(loadSurfaceTexture("grass-color.jpg"), null);
+});
+
+
+test("living landscape responds to wind with turbine speed and bird drift", () => {
+  const scene = new Scene();
+  const landscape = createLivingLandscape(scene, terrainHeightAt, tileAt);
+  assert.deepEqual(landscape.stats, { windTurbines: 4, birds: 15 });
+  const calmStart = landscape.turbines[0].rotation.z;
+  landscape.update(1, new Vector3(0, 0, -2));
+  const calmDelta = landscape.turbines[0].rotation.z - calmStart;
+  const stormStart = landscape.turbines[0].rotation.z;
+  landscape.update(1, new Vector3(0, 0, -12));
+  const stormDelta = landscape.turbines[0].rotation.z - stormStart;
+  assert.ok(stormDelta > calmDelta, "stronger wind accelerates turbine rotation");
+  assert.ok(landscape.birds.position.z < 0, "bird flock drifts with the wind vector");
 });
