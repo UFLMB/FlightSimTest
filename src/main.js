@@ -13,18 +13,18 @@ const canvas = document.querySelector("#flight-canvas");
 const isMobile = matchMedia("(max-width: 700px)").matches || /Android|iPhone|iPad/i.test(navigator.userAgent);
 const renderer = new THREE.WebGLRenderer({
   canvas,
-  antialias: !isMobile,
+  antialias: false,
   alpha: false,
   powerPreference: "high-performance",
   logarithmicDepthBuffer: false
 });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.55 : 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 1.25));
 renderer.setSize(window.innerWidth, window.innerHeight, false);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.16;
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFShadowMap;
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0xb9cbd0, .00055);
@@ -46,16 +46,16 @@ scene.add(hemisphere);
 const sunlight = new THREE.DirectionalLight(0xfff0d5, 3.1);
 sunlight.position.set(-180, 260, 120);
 sunlight.castShadow = true;
-sunlight.shadow.mapSize.set(isMobile ? 1024 : 3072, isMobile ? 1024 : 3072);
-sunlight.shadow.camera.left = -220;
-sunlight.shadow.camera.right = 220;
-sunlight.shadow.camera.top = 220;
-sunlight.shadow.camera.bottom = -220;
+sunlight.shadow.mapSize.set(isMobile ? 512 : 1024, isMobile ? 512 : 1024);
+sunlight.shadow.camera.left = -180;
+sunlight.shadow.camera.right = 180;
+sunlight.shadow.camera.top = 180;
+sunlight.shadow.camera.bottom = -180;
 sunlight.shadow.camera.near = 1;
 sunlight.shadow.camera.far = 650;
 sunlight.shadow.bias = -.00018;
 sunlight.shadow.normalBias = .025;
-sunlight.shadow.radius = isMobile ? 2 : 3;
+sunlight.shadow.radius = 1;
 scene.add(sunlight);
 
 const camera = new THREE.PerspectiveCamera(64, window.innerWidth / window.innerHeight, .1, 2600);
@@ -110,6 +110,8 @@ let previousTime = performance.now();
 let fps = 0;
 let fpsFrames = 0;
 let fpsStart = previousTime;
+let lastHudUpdate = 0;
+let lastRenderTime = 0;
 function applyWeatherVisuals() {
   const visual = weather.visual;
   scene.fog.color.setHex(visual.fogColor);
@@ -133,6 +135,9 @@ function cycleWeather() {
   hud.update(fps);
 }
 
+const cameraLabel = document.querySelector("#camera-label");
+const fpsNode = document.querySelector("#fps");
+const crashScreen = document.querySelector("#crash-screen");
 const desiredCameraPosition = new THREE.Vector3();
 const desiredLookAt = new THREE.Vector3();
 const forward = new THREE.Vector3();
@@ -159,9 +164,12 @@ function updateCamera(dt) {
   const smoothing = 1 - Math.pow(.001, dt);
   camera.position.lerp(desiredCameraPosition, smoothing);
   camera.lookAt(desiredLookAt);
-  camera.fov = cameraMode === 1 ? 76 : cameraMode === 2 ? 58 : 64;
-  camera.updateProjectionMatrix();
-  document.querySelector("#camera-label").textContent = mode.name;
+  const nextFov = cameraMode === 1 ? 76 : cameraMode === 2 ? 58 : 64;
+  if (camera.fov !== nextFov) {
+    camera.fov = nextFov;
+    camera.updateProjectionMatrix();
+  }
+  if (cameraLabel.textContent !== mode.name) cameraLabel.textContent = mode.name;
 }
 
 function setCameraMode() {
@@ -180,7 +188,7 @@ function onResize() {
   const width = window.innerWidth, height = window.innerHeight;
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.35 : 1.8));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 1.25));
   renderer.setSize(width, height, false);
 }
 window.addEventListener("resize", onResize);
@@ -198,6 +206,8 @@ document.querySelector("#restart-button").addEventListener("click", restartFligh
 
 function animate(now) {
   requestAnimationFrame(animate);
+  // Keep the live world responsive but avoid burning a full render loop behind
+  // the start screen. Flight mode renders at the display refresh rate.
   const elapsed = Math.min(.1, Math.max(0, (now - previousTime) / 1000));
   previousTime = now;
   fpsFrames++;
@@ -207,6 +217,8 @@ function animate(now) {
     fpsStart = now;
   }
 
+  if (!started && now - lastRenderTime < 1000 / 24) return;
+  lastRenderTime = now;
   weather.update(now / 1000);
   if (started) {
     input.update();
@@ -224,8 +236,11 @@ function animate(now) {
   aircraft.update(model, elapsed);
   world.update(elapsed, weather.wind);
   updateCamera(elapsed || 1 / 60);
-  hud.update(fps);
-  if (model.broken) document.querySelector("#crash-screen").classList.remove("hidden");
+  if (now - lastHudUpdate >= 100) {
+    hud.update(fps);
+    lastHudUpdate = now;
+  }
+  if (model.broken && crashScreen.classList.contains("hidden")) crashScreen.classList.remove("hidden");
   renderer.render(scene, camera);
 }
 
