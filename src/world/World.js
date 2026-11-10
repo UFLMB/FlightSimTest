@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { createAirport } from "./Airport.js";
+import { createLivingLandscape } from "./LivingLandscape.js";
 
 export const TERRAIN_GRID = [
 -2,-2,-2,-2,-2,-2,0,0,0,0,13,0,12,0,0,18,0,0,0,0,0,21,0,0,-2,
@@ -43,7 +45,7 @@ export function tileAt(x, z) {
 
 export function terrainHeightAt(x, z) {
   const code = tileAt(x, z);
-  if (code <= 0) return 0;
+  if (code <= 0 || (Math.abs(x) < 190 && z > -85 && z < 125)) return 0;
   const cx = Math.round(x / TILE_SIZE) * TILE_SIZE;
   const cz = Math.round(z / TILE_SIZE) * TILE_SIZE;
   const distance = Math.max(Math.abs(x - cx), Math.abs(z - cz));
@@ -61,15 +63,37 @@ function random(seed) {
   };
 }
 
+
+function createGroundDetailTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  const image = ctx.createImageData(256, 256);
+  let seed = 74221074;
+  for (let i = 0; i < image.data.length; i += 4) {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    const value = 90 + (seed >>> 24) * .52;
+    image.data[i] = image.data[i + 1] = image.data[i + 2] = value;
+    image.data[i + 3] = 255;
+  }
+  ctx.putImageData(image, 0, 0);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(26, 26);
+  texture.anisotropy = 4;
+  return texture;
+}
+
 function createTerrainMesh() {
-  const segments = 200, step = WORLD_EXTENT / segments;
+  const segments = 280, step = WORLD_EXTENT / segments;
   const positions = [], colors = [], indices = [], uvs = [];
   const color = new THREE.Color();
   for (let iz = 0; iz <= segments; iz++) {
     for (let ix = 0; ix <= segments; ix++) {
       const x = -HALF + ix * step, z = -HALF + iz * step;
       const hill = terrainHeightAt(x, z);
-      const micro = (Math.sin(x * .018) * Math.cos(z * .014) + Math.sin((x + z) * .009) * .5) * .28;
+      const airportFlat = Math.abs(x) < 200 && z > -90 && z < 130;
+      const micro = airportFlat ? 0 : (Math.sin(x * .018) * Math.cos(z * .014) + Math.sin((x + z) * .009) * .5 + Math.sin(x * .071 + z * .043) * .18) * .34;
       positions.push(x, hill + micro, z);
       uvs.push(ix / segments * 18, iz / segments * 18);
       if (tileAt(x, z) === -1) color.setRGB(.16, .29, .28);
@@ -90,7 +114,7 @@ function createTerrainMesh() {
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
   geometry.computeVertexNormals();
-  const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, metalness: 0 }));
+  const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .96, metalness: 0, bumpMap: createGroundDetailTexture(), bumpScale: .1 }));
   mesh.receiveShadow = true;
   mesh.frustumCulled = false;
   return mesh;
@@ -121,11 +145,21 @@ function addRunway(scene) {
     edge.position.set(x, .07, 80);
     group.add(edge);
   }
-  for (const x of [-12, -8, -4, 4, 8, 12]) {
-    const threshold = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 15), paint);
-    threshold.rotation.x = -Math.PI / 2;
-    threshold.position.set(x, .072, -49);
-    group.add(threshold);
+  for (const z of [-49, 209]) {
+    for (const x of [-16, -12, -8, -4, 4, 8, 12, 16]) {
+      const threshold = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 15), paint);
+      threshold.rotation.x = -Math.PI / 2;
+      threshold.position.set(x, .072, z);
+      group.add(threshold);
+    }
+  }
+  for (const z of [-18, -4, 164, 180]) {
+    for (const x of [-13, -9, 9, 13]) {
+      const touchdown = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 5), paint);
+      touchdown.rotation.x = -Math.PI / 2;
+      touchdown.position.set(x, .073, z);
+      group.add(touchdown);
+    }
   }
   scene.add(group);
   return group;
@@ -133,17 +167,17 @@ function addRunway(scene) {
 
 function addVegetation(scene) {
   const rand = random(74221074);
-  const trunkGeo = new THREE.CylinderGeometry(.13, .2, 2.2, 5);
-  const crownGeo = new THREE.ConeGeometry(1.45, 4.2, 6);
+  const trunkGeo = new THREE.CylinderGeometry(.13, .2, 2.2, 7);
+  const crownGeo = new THREE.ConeGeometry(1.45, 4.2, 8);
   const trunkMat = new THREE.MeshStandardMaterial({ color: 0x514331, roughness: 1 });
   const crownMat = new THREE.MeshStandardMaterial({ color: 0x183d2d, roughness: 1 });
-  const trunks = new THREE.InstancedMesh(trunkGeo, trunkMat, 760);
-  const crowns = new THREE.InstancedMesh(crownGeo, crownMat, 760);
+  const trunks = new THREE.InstancedMesh(trunkGeo, trunkMat, 1300);
+  const crowns = new THREE.InstancedMesh(crownGeo, crownMat, 1300);
   const dummy = new THREE.Object3D();
   let count = 0;
-  for (let i = 0; i < 760; i++) {
+  for (let i = 0; i < 1300; i++) {
     const x = (rand() - .5) * 920, z = (rand() - .5) * 920;
-    if (Math.abs(x) < 34 && Math.abs(z) < 325) continue;
+    if ((x > -200 && x < 190 && z > -85 && z < 125) || (Math.abs(x) < 34 && Math.abs(z) < 325)) continue;
     const code = tileAt(x, z);
     if (code === -1 || terrainHeightAt(x, z) > 14) continue;
     const y = terrainHeightAt(x, z), scale = .65 + rand() * .85;
@@ -219,8 +253,10 @@ function addClouds(scene) {
 export function createWorld(scene) {
   scene.add(createTerrainMesh());
   addRunway(scene);
+  const airport = createAirport(scene);
   addVegetation(scene);
   addWater(scene);
+  const landscape = createLivingLandscape(scene, terrainHeightAt, tileAt);
   const clouds = addClouds(scene);
-  return { clouds, terrainHeightAt, dispose() {} };
+  return { clouds, airport, terrainHeightAt, update(dt) { clouds.rotation.y += dt * .0007; landscape.update(dt); }, dispose() {} };
 }

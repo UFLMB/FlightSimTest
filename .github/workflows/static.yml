@@ -1,7 +1,7 @@
 name: Build and deploy native Flight Simulator
 on:
   push:
-    branches: ["main", "native-threejs-rebuild", "civil-mobile-controls"]
+    branches: ["main", "native-threejs-rebuild", "civil-mobile-controls", "gyro-living-world"]
   pull_request:
     branches: ["main"]
   workflow_dispatch:

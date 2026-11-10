@@ -48,8 +48,9 @@ export class HUD {
 }
 
 export class InputController {
-  constructor(model) {
+  constructor(model, gyro) {
     this.model = model;
+    this.gyro = gyro;
     this.keys = new Set();
     this.pointer = { x: 0, y: 0, active: false };
     this.touchThrottleUp = false;
@@ -127,7 +128,7 @@ export class InputController {
   }
 
   update() {
-    const keys = this.keys, stick = this.pointer;
+    const keys = this.keys, stick = this.gyro?.active ? this.gyro.controls : this.pointer;
     const throttle = keys.has("s") || this.touchThrottleUp ? 1 :
       keys.has("x") || this.touchThrottleDown ? -1 : 0;
     this.model.setControl("throttle", throttle);
