@@ -2,6 +2,8 @@ name: Build and deploy native Flight Simulator
 on:
   push:
     branches: ["main", "native-threejs-rebuild"]
+  pull_request:
+    branches: ["main"]
   workflow_dispatch:
 permissions:
   contents: read
