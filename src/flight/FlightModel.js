@@ -136,7 +136,7 @@ export class FlightModel {
 
     // Control moments: aerodynamic authority scales with dynamic pressure.
     const authority = clamp(q / 520, 0.08, 1.35);
-    const pitchAcceleration = (input.pitch * 1.55 * authority) - this.pitchRate * (0.75 + authority * 0.65);
+    const pitchAcceleration = (input.pitch * 1.55 - this.angleOfAttack * 4.2) * authority - this.pitchRate * (1.1 + authority * 0.5);
     const rollAcceleration = (input.roll * 2.65 * authority) - this.rollRate * (0.9 + authority * 0.75);
     const coordinatedYaw = speed > 4 ? GRAVITY * Math.sin(this.roll) / speed : 0;
     const yawAcceleration = input.yaw * 0.85 * authority + coordinatedYaw - this.yawRate * (0.8 + authority * 0.8);
