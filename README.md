@@ -1,30 +1,34 @@
-# Flight Simulator 3D v2.8 — Native Three.js reconstruction
+# Flight Simulator — Realistic Civil Aviation Edition
 
-This repository is transitioning from a packaged Scratch runtime to a native browser implementation. The original `Flight Simulator 3D v2.8.sb3` remains preserved and is the behavioral reference.
+The original **Flight Simulator 3D v2.8** Scratch project is preserved as a reference and historical fallback. The active browser simulator is a native Three.js implementation whose priority is now **realistic flight behaviour and presentation**, not pixel-identical reproduction of Scratch.
 
-## Architecture
+## Current engine
 
-- Three.js / WebGL renderer for the 3D scene.
-- Native JavaScript flight model with a fixed 30 Hz simulation step.
-- Original 25 × 25 terrain grid copied from the saved Scratch project.
-- Procedural civil aircraft, terrain, runway, vegetation, clouds, lighting, and cockpit-style telemetry.
-- Responsive keyboard controls and mobile gyroscope steering with a dedicated flight-systems panel.
+- Three.js / WebGL rendering with ACES tone mapping, atmospheric sky, directional sunlight and soft shadows.
+- Native SI-unit flight dynamics: metres, metres/second, radians, newtons and kilograms.
+- Fixed 60 Hz physics step, independent of render frame rate.
+- Aerodynamic lift curve, angle of attack, progressive stall, parasite and induced drag, engine spool, ground effect and gear drag.
+- Roll, pitch and yaw response with aerodynamic authority, damping and coordinated-turn tendency.
+- Ground contact, rolling resistance, braking and hard-landing detection.
+- Original 25 × 25 terrain reference, procedural runway/airport, vegetation and living landscape.
+- Civil aircraft only. No rocket, weapons or boost mechanic.
+- Keyboard controls on desktop and calibrated device gyroscope plus dedicated flight-systems controls on mobile.
 
 ## Controls
 
-- `S`: increase throttle; `X`: decrease throttle; `Space`: reduce throttle/brake.
+- `S`: increase throttle; `X`: reduce throttle; `Space`: brake.
 - Arrow up/down: pitch; arrow left/right: roll.
-- `A` / `D`: rudder/yaw.
+- `A` / `D`: rudder.
 - `W`: landing gear; `C`: camera cycle.
-- Mobile: enable device gyroscope for pitch and bank; calibrate while holding the phone naturally. The touch panel controls throttle, brake, rudder, landing gear, and camera.
+- Mobile: enable and calibrate gyroscope for pitch/bank; use the touch flight panel for throttle, brake, rudder, gear and camera.
 
-This is a civil aviation experience. There is no rocket, weapon, or boost control in the native flight model.
+## Realism roadmap
 
-## Fidelity and validation
+This first aerodynamics pass replaces the old Scratch-derived acceleration model with an SI-unit aerodynamic model. It is a simulation foundation, not a claim of certified flight dynamics. Further work is required for a complete high-fidelity experience: aircraft-specific performance data and trim, richer cockpit/instruments, weather and wind, terrain/airport asset quality, sound, traffic, navigation and extensive take-off/landing regression scenarios. Aircraft-specific tuning should be based on the final selected aircraft rather than guessed specifications.
 
-The original project is the source of truth for the start state, 25 × 25 world-grid dimensions, terrain cell size, throttle limits, input mapping, and 30 Hz update cadence. The native implementation reconstructs the flight dynamics and world rendering in independent modules. It is not yet certified as a bit-for-bit or pixel-for-pixel clone; differences are expected until side-by-side behavioral tests are completed.
+## Validation
 
-The build pipeline runs automated tests for the flight model and terrain sampler before deployment. The original Scratch/TurboWarp build is retained in Git history and can be restored if required.
+`npm test` runs automated terrain and flight-model regression tests. `npm run build` creates the static browser build. The original Scratch project file remains unchanged in the repository and the previous native build is preserved in Git history and the `native-threejs-pre-parity-backup` branch.
 
 ## Development
 
@@ -37,6 +41,4 @@ npm run dev
 npm run build
 ```
 
-## Attribution
-
-Original Scratch project: **Flight Simulator 3D v2.8**, by **WO997**. The original project file remains unmodified and is retained as the reconstruction reference.
+Original Scratch reference: **Flight Simulator 3D v2.8**, by **WO997**.
