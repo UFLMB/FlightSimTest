@@ -6,6 +6,7 @@ import { Vector3 } from "three";
 import { createAircraft, instrumentNeedleAngles } from "../src/aircraft/Aircraft.js";
 import { Scene } from "three";
 import { TERRAIN_GRID, tileAt, terrainHeightAt } from "../src/world/World.js";
+import { createAirport } from "../src/world/Airport.js";
 
 const step = (model, seconds, dt = 1 / 60) => {
   for (let t = 0; t < seconds; t += dt) model.step(dt, terrainHeightAt);
@@ -175,4 +176,16 @@ test("weather preset cycling wraps to the first preset", () => {
   const weather = new WeatherSystem();
   for (let i = 0; i < 4; i++) weather.nextPreset();
   assert.equal(weather.presetId, "calm");
+});
+
+
+test("airport includes taxiway lighting, PAPI guidance, parking stands and ramp vehicles", () => {
+  const scene = new Scene();
+  const airport = createAirport(scene);
+  assert.equal(airport.userData.detailFeatures.taxiwayLights, 27);
+  assert.equal(airport.userData.detailFeatures.papiUnits, 4);
+  assert.equal(airport.userData.detailFeatures.parkingStands, 4);
+  assert.equal(airport.userData.detailFeatures.serviceVehicles, 2);
+  assert.ok(airport.userData.windSock, "windsock is exposed for live wind-direction animation");
+  assert.ok(scene.children.includes(airport));
 });

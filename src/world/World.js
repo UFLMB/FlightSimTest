@@ -262,5 +262,9 @@ export function createWorld(scene) {
   addWater(scene);
   const landscape = createLivingLandscape(scene, terrainHeightAt, tileAt);
   const clouds = addClouds(scene);
-  return { clouds, airport, terrainHeightAt, update(dt) { clouds.rotation.y += dt * .0007; landscape.update(dt); }, dispose() {} };
+  return { clouds, airport, terrainHeightAt, update(dt, wind) {
+    clouds.rotation.y += dt * .0007;
+    landscape.update(dt);
+    if (wind && airport.userData.windSock) airport.userData.windSock.rotation.y = Math.atan2(-wind.z, wind.x);
+  }, dispose() {} };
 }

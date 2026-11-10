@@ -48,9 +48,57 @@ export function createAirport(scene){
  const lampGeo=new THREE.CylinderGeometry(.13,.18,.24,8);
  for(const x of [-21.5,21.5])for(let z=-120;z<=470;z+=12){const l=new THREE.Mesh(lampGeo,lampMat);l.position.set(x,.18,z);g.add(l);}
  for(const x of [-16,-12,-8,-4,4,8,12,16]){const l=new THREE.Mesh(lampGeo,new THREE.MeshStandardMaterial({color:0xe6e8d7,emissive:0xe9f5ed,emissiveIntensity:.9}));l.position.set(x,.18,-125);g.add(l);}
+
+ // Taxiway edge and centreline lighting, aligned to the apron connector.
+ const blueTaxiLamp=new THREE.MeshStandardMaterial({color:0x8ac7ed,emissive:0x2478bd,emissiveIntensity:1.15});
+ const greenTaxiLamp=new THREE.MeshStandardMaterial({color:0x9fe6b2,emissive:0x2c9a63,emissiveIntensity:.95});
+ const taxiLampGeo=new THREE.SphereGeometry(.16,8,6);
+ let taxiwayLightCount=0;
+ for(let z=8;z<=112;z+=12){
+  for(const x of [7,23]){const lamp=new THREE.Mesh(taxiLampGeo,blueTaxiLamp);lamp.position.set(x,.2,z);g.add(lamp);taxiwayLightCount++;}
+  const centre=new THREE.Mesh(taxiLampGeo,greenTaxiLamp);centre.position.set(15,.16,z);g.add(centre);taxiwayLightCount++;
+ }
+ // Four-unit PAPI visual guidance bar on the left of the runway approach.
+ const papiWhite=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:1.5});
+ const papiRed=new THREE.MeshStandardMaterial({color:0xff514c,emissive:0xb51e1e,emissiveIntensity:1.25});
+ for(let i=0;i<4;i++){
+  const housing=new THREE.Mesh(new THREE.BoxGeometry(.72,.28,.38),metal);
+  housing.position.set(-28,.22,-91-i*2.2);g.add(housing);
+  const lens=new THREE.Mesh(new THREE.BoxGeometry(.5,.12,.08),i<2?papiWhite:papiRed);
+  lens.position.set(-28,.28,-91-i*2.2-.2);g.add(lens);
+ }
+ // Nose-in general-aviation parking stands with lead-in and stop markings.
+ const standYellow=new THREE.MeshBasicMaterial({color:0xe8c64d});
+ const standWhite=new THREE.MeshBasicMaterial({color:0xe4e8df});
+ const standXs=[34,51,68,85];
+ for(const x of standXs){
+  const lead=plane(g,.22,19,x,.115,34,standYellow);
+  const stop=plane(g,10,.22,x,.116,24,standWhite);
+  const rear=plane(g,10,.18,x,.116,43,standYellow);
+ }
+ // Parked ramp service vehicles add scale and a lived-in apron.
+ const serviceTire=new THREE.MeshStandardMaterial({color:0x161a1c,roughness:.92});
+ const addServiceVehicle=(x,z,paintColor)=>{
+  const vehicle=new THREE.Group();vehicle.position.set(x,.12,z);
+  const bodyMat=new THREE.MeshStandardMaterial({color:paintColor,roughness:.68,metalness:.12});
+  const body=new THREE.Mesh(new THREE.BoxGeometry(2.15,1.05,3.5),bodyMat);body.position.y=.86;body.castShadow=true;vehicle.add(body);
+  const cab=new THREE.Mesh(new THREE.BoxGeometry(1.95,.88,1.45),glass);cab.position.set(0,1.68,.62);vehicle.add(cab);
+  const bumper=new THREE.Mesh(new THREE.BoxGeometry(2.2,.2,.22),metal);bumper.position.set(0,.48,1.78);vehicle.add(bumper);
+  for(const side of [-1,1])for(const zOffset of [-1.12,1.12]){
+   const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.18,12),serviceTire);
+   wheel.rotation.z=Math.PI/2;wheel.position.set(side*1.08,.38,zOffset);vehicle.add(wheel);
+  }
+  const beacon=new THREE.Mesh(new THREE.SphereGeometry(.13,8,6),new THREE.MeshBasicMaterial({color:0xffc84d}));beacon.position.set(0,2.17,.45);vehicle.add(beacon);
+  g.add(vehicle);
+ };
+ addServiceVehicle(94,58,0xd8b64c);
+ addServiceVehicle(5,54,0xe8eceb);
+ g.userData.detailFeatures={taxiwayLights:taxiwayLightCount,papiUnits:4,parkingStands:standXs.length,serviceVehicles:2};
+
  // Windsock and access road.
  const sockPole=new THREE.Mesh(new THREE.CylinderGeometry(.08,.12,6,7),metal);sockPole.position.set(-78,3,36);g.add(sockPole);
  const sock=new THREE.Mesh(new THREE.ConeGeometry(.7,4.5,8,1,true),new THREE.MeshStandardMaterial({color:0xf1eee0,side:THREE.DoubleSide}));sock.rotation.z=-Math.PI/2;sock.position.set(-76,5.4,36);g.add(sock);
  plane(g,9,250,155,.08,35,asphalt);
+ g.userData.windSock=sock;
  scene.add(g);return g;
 }
