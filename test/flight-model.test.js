@@ -154,3 +154,25 @@ test("cockpit instrument needles use calibrated SI and aviation-unit ranges", ()
   assert.equal(readings[4], -0.25, "attitude indicator follows bank angle");
   assert.ok(Math.abs(readings[5] + Math.PI / 2) < 1e-9, "90-degree heading maps to a quarter turn");
 });
+
+
+test("weather presets produce distinct deterministic wind conditions", () => {
+  const weather = new WeatherSystem();
+  assert.equal(weather.label, "STANDARD");
+  assert.equal(weather.setPreset("crosswind"), true);
+  weather.update(0);
+  assert.ok(weather.wind.x > 0, "west wind blows east across the north-south runway");
+  assert.ok(weather.directionFrom > 260 && weather.directionFrom < 280);
+  assert.equal(weather.setPreset("storm"), true);
+  weather.update(0);
+  assert.ok(weather.speed > 8);
+  assert.equal(weather.visual.cloudOpacity, .97);
+  assert.equal(weather.setPreset("unknown"), false);
+  assert.equal(weather.label, "STORM", "invalid presets do not corrupt the active weather");
+});
+
+test("weather preset cycling wraps to the first preset", () => {
+  const weather = new WeatherSystem();
+  for (let i = 0; i < 5; i++) weather.nextPreset();
+  assert.equal(weather.presetId, "calm");
+});
