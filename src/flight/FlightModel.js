@@ -50,6 +50,7 @@ export class FlightModel {
     this.gear = GEAR_DOWN;
     this.gearState = 0;
     this.broken = false;
+    this.collisionReason = null;
     this.onGround = true;
     this.stalled = false;
     this.angleOfAttack = 0;
@@ -76,7 +77,7 @@ export class FlightModel {
   get forwardSpeed() { return this.velocity.dot(this.forward); }
   get throttlePercent() { return Math.round(this.power * 100); }
 
-  step(dt, terrainHeightAt, wind = ZERO_WIND) {
+  step(dt, terrainHeightAt, wind = ZERO_WIND, collisionAt = null) {
     if (this.broken) return;
     const h = Math.min(1 / 30, Math.max(1 / 240, dt));
     const input = this.controls;
@@ -173,6 +174,17 @@ export class FlightModel {
       if (Math.abs(this.velocity.z) > 1.5) this.yawRate += input.yaw * 0.18 * h;
     }
     this.position.addScaledVector(this.velocity, h);
+
+    // Swept endpoint collision against finite-world boundaries and static
+    // scenery. The C172 is approximated by its 5.6 m half-span envelope.
+    const collision = collisionAt?.(this.position.x, this.position.y, this.position.z);
+    if (collision) {
+      this.broken = true;
+      this.collisionReason = collision.type || "obstacle";
+      this.velocity.set(0, 0, 0);
+      this.lastGroundContact = false;
+      return;
+    }
 
     const surface = terrainHeightAt(this.position.x, this.position.z);
     const gearClearance = 2.05;

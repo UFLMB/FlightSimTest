@@ -214,7 +214,7 @@ function animate(now) {
     const fixedStep = 1 / 60;
     let steps = 0;
     while (accumulator >= fixedStep && steps < 8) {
-      model.step(fixedStep, world.terrainHeightAt, weather.wind);
+      model.step(fixedStep, world.terrainHeightAt, weather.wind, world.collisionAt);
       accumulator -= fixedStep;
       steps++;
     }
