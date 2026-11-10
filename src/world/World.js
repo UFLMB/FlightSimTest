@@ -45,7 +45,7 @@ export function tileAt(x, z) {
 
 export function terrainHeightAt(x, z) {
   const code = tileAt(x, z);
-  if (code <= 0) return 0;
+  if (code <= 0 || (Math.abs(x) < 190 && z > -85 && z < 125)) return 0;
   const cx = Math.round(x / TILE_SIZE) * TILE_SIZE;
   const cz = Math.round(z / TILE_SIZE) * TILE_SIZE;
   const distance = Math.max(Math.abs(x - cx), Math.abs(z - cz));
@@ -63,6 +63,27 @@ function random(seed) {
   };
 }
 
+
+function createGroundDetailTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  const image = ctx.createImageData(256, 256);
+  let seed = 74221074;
+  for (let i = 0; i < image.data.length; i += 4) {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    const value = 90 + (seed >>> 24) * .52;
+    image.data[i] = image.data[i + 1] = image.data[i + 2] = value;
+    image.data[i + 3] = 255;
+  }
+  ctx.putImageData(image, 0, 0);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(26, 26);
+  texture.anisotropy = 4;
+  return texture;
+}
+
 function createTerrainMesh() {
   const segments = 280, step = WORLD_EXTENT / segments;
   const positions = [], colors = [], indices = [], uvs = [];
@@ -71,7 +92,7 @@ function createTerrainMesh() {
     for (let ix = 0; ix <= segments; ix++) {
       const x = -HALF + ix * step, z = -HALF + iz * step;
       const hill = terrainHeightAt(x, z);
-      const airportFlat = Math.abs(x) < 125 && z > -75 && z < 125;
+      const airportFlat = Math.abs(x) < 200 && z > -90 && z < 130;
       const micro = airportFlat ? 0 : (Math.sin(x * .018) * Math.cos(z * .014) + Math.sin((x + z) * .009) * .5 + Math.sin(x * .071 + z * .043) * .18) * .34;
       positions.push(x, hill + micro, z);
       uvs.push(ix / segments * 18, iz / segments * 18);
@@ -93,7 +114,7 @@ function createTerrainMesh() {
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
   geometry.computeVertexNormals();
-  const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, metalness: 0 }));
+  const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .96, metalness: 0, bumpMap: createGroundDetailTexture(), bumpScale: .1 }));
   mesh.receiveShadow = true;
   mesh.frustumCulled = false;
   return mesh;
@@ -146,7 +167,7 @@ function addVegetation(scene) {
   let count = 0;
   for (let i = 0; i < 1300; i++) {
     const x = (rand() - .5) * 920, z = (rand() - .5) * 920;
-    if (Math.abs(x) < 34 && Math.abs(z) < 325) continue;
+    if ((x > -200 && x < 190 && z > -85 && z < 125) || (Math.abs(x) < 34 && Math.abs(z) < 325)) continue;
     const code = tileAt(x, z);
     if (code === -1 || terrainHeightAt(x, z) > 14) continue;
     const y = terrainHeightAt(x, z), scale = .65 + rand() * .85;
