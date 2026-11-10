@@ -226,7 +226,7 @@ test("PBR surface texture loader preserves headless procedural test fallback", (
 test("living landscape responds to wind with turbine speed and bird drift", () => {
   const scene = new Scene();
   const landscape = createLivingLandscape(scene, terrainHeightAt, tileAt);
-  assert.deepEqual(landscape.stats, { windTurbines: 4, birds: 15 });
+  assert.deepEqual(landscape.stats, { windTurbines: 4, birds: 15, instancedHouses: 34 });
   const calmStart = landscape.turbines[0].rotation.z;
   landscape.update(1, new Vector3(0, 0, -2));
   const calmDelta = landscape.turbines[0].rotation.z - calmStart;
@@ -271,4 +271,14 @@ test("aircraft collision callback terminates flight at a solid obstacle", () => 
   model.step(1 / 60, terrainHeightAt, new Vector3(), () => ({ type: "tree" }));
   assert.equal(model.broken, true);
   assert.equal(model.collisionReason, "tree");
+});
+
+
+test("world vegetation returns a usable collision set and spatial collision lookup is safe", async () => {
+  const { createWorld } = await import("../src/world/World.js");
+  const { Scene } = await import("three");
+  const world = createWorld(new Scene());
+  assert.equal(typeof world.collisionAt, "function");
+  assert.equal(world.collisionAt(0, 300, 0), null, "clear runway corridor must remain unobstructed");
+  assert.equal(world.collisionAt(0, 300, 0)?.type, undefined);
 });

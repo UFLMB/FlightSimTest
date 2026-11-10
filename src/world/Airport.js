@@ -3,11 +3,14 @@ import { loadSurfaceTexture } from "./SurfaceTextures.js";
 
 const makeBox=(group,x,y,z,w,h,d,material)=>{
  const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
- mesh.position.set(x,y+h/2,z);mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh;
+ mesh.position.set(x,y+h/2,z);
+ mesh.castShadow = w > 8 && h > 5;
+ mesh.receiveShadow = false;
+ group.add(mesh);return mesh;
 };
 const plane=(group,w,d,x,y,z,material)=>{
  const mesh=new THREE.Mesh(new THREE.PlaneGeometry(w,d),material);
- mesh.rotation.x=-Math.PI/2;mesh.position.set(x,y,z);mesh.receiveShadow=true;group.add(mesh);return mesh;
+ mesh.rotation.x=-Math.PI/2;mesh.position.set(x,y,z);mesh.receiveShadow=false;group.add(mesh);return mesh;
 };
 export function createAirport(scene){
  const g=new THREE.Group();
