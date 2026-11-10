@@ -1,7 +1,7 @@
 name: Analyze Scratch source
 on:
   push:
-    branches: ["scratch-rebuild"]
+    branches: ["main"]
     paths:
       - "Flight Simulator 3D v2.8.sb3"
       - "scripts/analyze-scratch.mjs"
