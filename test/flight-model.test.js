@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { FlightModel } from "../src/flight/FlightModel.js";
 import { WeatherSystem } from "../src/flight/WeatherSystem.js";
 import { Vector3 } from "three";
-import { createAircraft } from "../src/aircraft/Aircraft.js";
+import { createAircraft, instrumentNeedleAngles } from "../src/aircraft/Aircraft.js";
 import { Scene } from "three";
 import { TERRAIN_GRID, tileAt, terrainHeightAt } from "../src/world/World.js";
 
@@ -134,4 +134,23 @@ test("civil airframe builds cockpit instruments, glazing and control surfaces", 
   assert.ok(aircraft.root.children.length > 35);
   assert.equal(aircraft.gearGroup.visible, true);
   assert.equal(scene.children.includes(aircraft.root), true);
+});
+
+
+test("cockpit instrument needles use calibrated SI and aviation-unit ranges", () => {
+  const readings = instrumentNeedleAngles({
+    indicatedAirspeed: 80,
+    position: { y: 500 },
+    verticalSpeed: 5,
+    power: 0.5,
+    roll: 0.25,
+    heading: 90
+  });
+  assert.equal(readings.length, 6);
+  assert.ok(Math.abs(readings[0] + Math.PI * .75) < 1e-9, "80 kt is half-scale on the airspeed indicator");
+  assert.ok(Math.abs(readings[1] + Math.PI) < 1e-9, "500 m is half-scale on the altimeter");
+  assert.ok(readings[2] < 0 && readings[2] > -Math.PI * .65, "positive climb indicates upward on the VSI");
+  assert.ok(readings[3] < 0, "engine RPM follows engine power");
+  assert.equal(readings[4], -0.25, "attitude indicator follows bank angle");
+  assert.ok(Math.abs(readings[5] + Math.PI / 2) < 1e-9, "90-degree heading maps to a quarter turn");
 });
