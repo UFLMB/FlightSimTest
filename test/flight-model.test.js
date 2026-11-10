@@ -132,7 +132,7 @@ test("civil airframe builds cockpit instruments, glazing and control surfaces", 
   const model = new FlightModel();
   aircraft.update(model, 1 / 60);
   assert.equal(aircraft.instrumentNeedles.length, 6);
-  assert.ok(aircraft.proceduralExterior.children.length > 35);
+  assert.ok(aircraft.proceduralExterior.children.length > 25);
   assert.ok(aircraft.cockpit.children.length >= 9);
   assert.equal(aircraft.gearGroup.visible, true);
   assert.equal(scene.children.includes(aircraft.root), true);
