@@ -1,7 +1,7 @@
-name: Build and deploy native Flight Simulator
+name: Deploy Flight Simulator to GitHub Pages
 on:
   push:
-    branches: ["main", "native-threejs-rebuild", "civil-mobile-controls", "gyro-living-world", "realism-instruments-camera-phase5", "weather-presets-atmosphere-phase6", "airport-ground-operations-phase7", "real-aircraft-model-phase8", "pbr-airport-surfaces-phase9", "c172-fixed-gear-realism-phase10"]
+    branches: ["main"]
   pull_request:
     branches: ["main"]
   workflow_dispatch:
@@ -16,22 +16,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
-      - name: Run flight model and terrain tests
-        run: npm test
-      - name: Build native WebGL simulator
+      - name: Install pinned TurboWarp Packager
+        run: npm install --no-save --no-package-lock @turbowarp/packager@3.14.0
+      - name: Build standalone game
         run: npm run build
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
   deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
