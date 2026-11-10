@@ -10,3 +10,12 @@
 - **Changes in this project:** Uses the source project's optimized GLB derivative; the model's orientation is transformed from +Y-up / nose −X to the simulator's +Y-up / nose +Z convention, and its wingspan is normalized to the simulator's aircraft scale at runtime. The model's existing embedded materials and textures are retained.
 
 The GLB is a visual asset only. Flight dynamics remain implemented separately in this project and are not derived from this model. The original Scratch project is preserved independently.
+
+
+## Airport and landscape surface textures
+
+- **Asphalt colour:** Poly Haven, “Asphalt Track” (CC0), distributed in the prepared 1K texture set used by the Vienna Vulkan Engine Ring Racer example. Source: https://polyhaven.com/a/asphalt_track
+- **Grass colour and OpenGL normal:** Poly Haven, “Leafy Grass” (CC0), distributed in the prepared 1K texture set used by the Vienna Vulkan Engine Ring Racer example. Source: https://polyhaven.com/a/leafy_grass
+- **Concrete colour and roughness:** ambientCG, “Concrete031” (CC0). Source: https://ambientcg.com/view?id=Concrete031
+
+The texture maps are stored locally under public/assets/textures; the simulator applies tiling and material settings at runtime. All listed sources permit reuse under CC0.

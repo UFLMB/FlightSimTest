@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { createAirport } from "./Airport.js";
 import { createLivingLandscape } from "./LivingLandscape.js";
+import { loadSurfaceTexture } from "./SurfaceTextures.js";
 
 export const TERRAIN_GRID = [
 -2,-2,-2,-2,-2,-2,0,0,0,0,13,0,12,0,0,18,0,0,0,0,0,21,0,0,-2,
@@ -98,11 +99,11 @@ function createTerrainMesh() {
       const runwayFlat = Math.abs(x) < 26 && z > -130 && z < 480;
       const micro = (airportFlat || runwayFlat) ? 0 : (Math.sin(x * .018) * Math.cos(z * .014) + Math.sin((x + z) * .009) * .5 + Math.sin(x * .071 + z * .043) * .18) * .34;
       positions.push(x, hill + micro, z);
-      uvs.push(ix / segments * 18, iz / segments * 18);
-      if (tileAt(x, z) === -1) color.setRGB(.16, .29, .28);
-      else if (hill > 10) color.setRGB(.38, .39, .32);
-      else if (hill > 3) color.setRGB(.29, .39, .25);
-      else color.setRGB(.19, .34, .21);
+      uvs.push(ix / segments * 180, iz / segments * 180);
+      if (tileAt(x, z) === -1) color.setRGB(.48, .64, .68);
+      else if (hill > 10) color.setRGB(.84, .8, .69);
+      else if (hill > 3) color.setRGB(.82, .87, .7);
+      else color.setRGB(.78, .91, .72);
       const variation = Math.sin(x * .11 + z * .07) * .012;
       colors.push(clamp(color.r + variation, 0, 1), clamp(color.g + variation, 0, 1), clamp(color.b + variation, 0, 1));
     }
@@ -117,7 +118,14 @@ function createTerrainMesh() {
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
   geometry.computeVertexNormals();
-  const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .96, metalness: 0, bumpMap: createGroundDetailTexture(), bumpScale: .1 }));
+  const grassColor = loadSurfaceTexture("grass-color.jpg", 1, 1, THREE.SRGBColorSpace);
+  const grassNormal = loadSurfaceTexture("grass-normal.jpg", 1, 1);
+  const groundDetail = createGroundDetailTexture();
+  groundDetail.repeat.set(.1, .1);
+  const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
+    map: grassColor, normalMap: grassNormal, normalScale: new THREE.Vector2(.72, .72),
+    vertexColors: true, roughness: .97, metalness: 0, bumpMap: groundDetail, bumpScale: .035
+  }));
   mesh.receiveShadow = true;
   mesh.frustumCulled = false;
   return mesh;
@@ -131,7 +139,8 @@ function addRunway(scene) {
   shoulder.rotation.x = -Math.PI / 2;
   shoulder.position.set(0, .025, runwayCenter);
   group.add(shoulder);
-  const asphalt = new THREE.Mesh(new THREE.PlaneGeometry(40, runwayLength), new THREE.MeshStandardMaterial({ color: 0x343b40, roughness: .94 }));
+  const runwayAsphalt = loadSurfaceTexture("asphalt-color.jpg", 8, 120, THREE.SRGBColorSpace);
+  const asphalt = new THREE.Mesh(new THREE.PlaneGeometry(40, runwayLength), new THREE.MeshStandardMaterial({ map: runwayAsphalt, color: 0xffffff, roughness: .96, metalness: 0 }));
   asphalt.rotation.x = -Math.PI / 2;
   asphalt.position.set(0, .055, runwayCenter);
   asphalt.receiveShadow = true;

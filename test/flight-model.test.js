@@ -7,6 +7,7 @@ import { createAircraft, instrumentNeedleAngles } from "../src/aircraft/Aircraft
 import { Scene } from "three";
 import { TERRAIN_GRID, tileAt, terrainHeightAt } from "../src/world/World.js";
 import { createAirport } from "../src/world/Airport.js";
+import { loadSurfaceTexture } from "../src/world/SurfaceTextures.js";
 
 const step = (model, seconds, dt = 1 / 60) => {
   for (let t = 0; t < seconds; t += dt) model.step(dt, terrainHeightAt);
@@ -205,4 +206,9 @@ test("detailed C172 GLB attachment aligns the airframe and keeps procedural fall
   assert.ok(result.meshCount === 1);
   assert.ok(Math.abs(result.visibleWingspan - 10.98) < .01);
   assert.ok(Number.isFinite(imported.position.y));
+});
+
+
+test("PBR surface texture loader preserves headless procedural test fallback", () => {
+  assert.equal(loadSurfaceTexture("grass-color.jpg"), null);
 });
