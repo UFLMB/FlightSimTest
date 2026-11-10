@@ -1,37 +1,40 @@
-# Flight Simulator 3D v2.8 — browser build
+# Flight Simulator 3D v2.8 — Native Three.js reconstruction
 
-This repository preserves the original Scratch project and packages it as a standalone browser game.
+This repository is transitioning from a packaged Scratch runtime to a native browser implementation. The original `Flight Simulator 3D v2.8.sb3` remains preserved and is the behavioral reference.
 
-## Source of truth
+## Architecture
 
-- Original project: `Flight Simulator 3D v2.8.sb3`
-- Original aircraft, terrain, flight physics, controls, and effects remain intact.
-- Browser runtime: pinned TurboWarp Packager 3.14.0.
-- Build script: `scripts/package-project.cjs`
+- Three.js / WebGL renderer for the 3D scene.
+- Native JavaScript flight model with a fixed 30 Hz simulation step.
+- Original 25 × 25 terrain grid copied from the saved Scratch project.
+- Procedural aircraft, terrain, runway, vegetation, clouds, lighting, and cockpit-style telemetry.
+- Responsive keyboard and touch controls.
 
-## Graphics/runtime profile
+## Original control mapping
 
-The current visual-quality pass enables TurboWarp's high-quality pen renderer. The original project draws its 3D scene with pen-based rendering, so this raises the backing resolution used for those strokes and improves edge/detail clarity on capable displays.
+- `S`: increase throttle; `X`: decrease throttle; `Space`: reduce throttle/brake.
+- Arrow up/down: pitch; arrow left/right: roll.
+- `A` / `D`: rudder/yaw.
+- `W`: landing gear; `R`: rocket boost; `C`: camera cycle (native addition).
+- Mobile: virtual stick and touch throttle/brake/gear.
 
-The simulation timing remains at the original 30 FPS. Frame interpolation and turbo mode stay disabled because this is a frame-dependent 3D project and changing its timing could affect flight physics or performance. High-quality rendering can use more GPU memory and may reduce performance on older phones; test both desktop and mobile.
+## Fidelity and validation
 
-This pass improves rendering clarity. It does not yet replace the original Scratch-generated aircraft/terrain with new photorealistic 3D models or physically based materials.
+The original project is the source of truth for the start state, 25 × 25 world-grid dimensions, terrain cell size, throttle limits, input mapping, and 30 Hz update cadence. The native implementation reconstructs the flight dynamics and world rendering in independent modules. It is not yet certified as a bit-for-bit or pixel-for-pixel clone; differences are expected until side-by-side behavioral tests are completed.
 
-## Build
+The build pipeline runs automated tests for the flight model and terrain sampler before deployment. The original Scratch/TurboWarp build is retained in Git history and can be restored if required.
 
-Node.js 22 is recommended.
+## Development
+
+Node.js 22:
 
 ```sh
-npm install --no-save --no-package-lock @turbowarp/packager@3.14.0
+npm install
+npm test
+npm run dev
 npm run build
 ```
 
-The standalone HTML game is written to `dist/index.html`.
-
-## Deployment
-
-The `Deploy Flight Simulator to GitHub Pages` workflow builds and deploys the `dist` directory from `main`.
-
 ## Attribution
 
-Original Scratch project: **Flight Simulator 3D v2.8**, by **WO997**. The original project and its assets remain the source material for this browser package.
+Original Scratch project: **Flight Simulator 3D v2.8**, by **WO997**. The original project file remains unmodified and is retained as the reconstruction reference.
