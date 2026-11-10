@@ -5,7 +5,7 @@ import { WeatherSystem } from "../src/flight/WeatherSystem.js";
 import { Vector3, Group, Mesh, BoxGeometry, MeshBasicMaterial } from "three";
 import { createAircraft, instrumentNeedleAngles } from "../src/aircraft/Aircraft.js";
 import { Scene } from "three";
-import { TERRAIN_GRID, tileAt, terrainHeightAt } from "../src/world/World.js";
+import { TERRAIN_GRID, tileAt, terrainHeightAt, isInsideWorld } from "../src/world/World.js";
 import { createAirport } from "../src/world/Airport.js";
 import { createLivingLandscape } from "../src/world/LivingLandscape.js";
 import { loadSurfaceTexture } from "../src/world/SurfaceTextures.js";
@@ -14,13 +14,18 @@ const step = (model, seconds, dt = 1 / 60) => {
   for (let t = 0; t < seconds; t += dt) model.step(dt, terrainHeightAt);
 };
 
-test("original 25 by 25 terrain reference remains intact", () => {
+test("terrain stays finite and does not wrap beyond the 1 km world", () => {
   assert.equal(TERRAIN_GRID.length, 625);
   assert.equal(tileAt(0, 5), -2);
   assert.equal(tileAt(80, 0), -1);
   assert.equal(terrainHeightAt(80, 400), 12);
   assert.equal(terrainHeightAt(0, 400), 0, "extended runway corridor must remain level");
   assert.equal(terrainHeightAt(0, 5), 0);
+  assert.equal(isInsideWorld(499, 0), true);
+  assert.equal(isInsideWorld(501, 0), false);
+  assert.equal(isInsideWorld(0, -501), false);
+  assert.equal(tileAt(501, 0), 0, "outside coordinates must not wrap to another terrain tile");
+  assert.equal(terrainHeightAt(501, 0), 0);
 });
 
 test("aircraft starts on the runway with SI-unit state", () => {
@@ -242,4 +247,28 @@ test("airport beacon rotates and keeps approach lighting in the scene", () => {
   assert.ok(beacon.rotation.y > initial);
   assert.equal(airport.userData.detailFeatures.approachLights, 23);
   assert.equal(airport.userData.detailFeatures.taxiSigns, 2);
+});
+
+
+test("world collision envelope detects obstacles and finite map edges", () => {
+  const model = new FlightModel();
+  model.position.set(495, 20, 0);
+  model.velocity.set(20, 0, 0);
+  model.onGround = false;
+  model.step(1 / 60, terrainHeightAt, new Vector3(), (x, y, z) =>
+    Math.abs(x) > 494 ? { type: "world boundary" } : null
+  );
+  assert.equal(model.broken, true);
+  assert.equal(model.collisionReason, "world boundary");
+  assert.equal(model.velocity.length(), 0);
+});
+
+test("aircraft collision callback terminates flight at a solid obstacle", () => {
+  const model = new FlightModel();
+  model.position.set(10, 20, 10);
+  model.velocity.set(10, 0, 0);
+  model.onGround = false;
+  model.step(1 / 60, terrainHeightAt, new Vector3(), () => ({ type: "tree" }));
+  assert.equal(model.broken, true);
+  assert.equal(model.collisionReason, "tree");
 });
