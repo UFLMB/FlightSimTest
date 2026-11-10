@@ -1,0 +1,28 @@
+name: Analyze Scratch source
+on:
+  push:
+    branches: ["scratch-rebuild"]
+    paths:
+      - "Flight Simulator 3D v2.8.sb3"
+      - "scripts/analyze-scratch.mjs"
+      - ".github/workflows/analyze-scratch.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Extract and analyze original Scratch project
+        run: node scripts/analyze-scratch.mjs
+      - name: Upload extracted source and analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: scratch-source-analysis
+          path: analysis/
+          retention-days: 14
