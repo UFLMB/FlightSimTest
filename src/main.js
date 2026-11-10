@@ -43,7 +43,7 @@ const hemisphere = new THREE.HemisphereLight(0xd9eaf2, 0x46533e, 1.65);
 scene.add(hemisphere);
 const sunlight = new THREE.DirectionalLight(0xfff0d5, 3.1);
 sunlight.position.set(-180, 260, 120);
-sunlight.castShadow = !isMobile;
+sunlight.castShadow = true;
 sunlight.shadow.mapSize.set(isMobile ? 1024 : 3072, isMobile ? 1024 : 3072);
 sunlight.shadow.camera.left = -220;
 sunlight.shadow.camera.right = 220;
