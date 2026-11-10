@@ -77,6 +77,7 @@ export function createAirport(scene){
   const rear=plane(g,10,.18,x,.116,43,standYellow);
  }
  // Parked ramp service vehicles add scale and a lived-in apron.
+ const serviceTire=new THREE.MeshStandardMaterial({color:0x161a1c,roughness:.92});
  const addServiceVehicle=(x,z,paintColor)=>{
   const vehicle=new THREE.Group();vehicle.position.set(x,.12,z);
   const bodyMat=new THREE.MeshStandardMaterial({color:paintColor,roughness:.68,metalness:.12});
@@ -84,7 +85,7 @@ export function createAirport(scene){
   const cab=new THREE.Mesh(new THREE.BoxGeometry(1.95,.88,1.45),glass);cab.position.set(0,1.68,.62);vehicle.add(cab);
   const bumper=new THREE.Mesh(new THREE.BoxGeometry(2.2,.2,.22),metal);bumper.position.set(0,.48,1.78);vehicle.add(bumper);
   for(const side of [-1,1])for(const zOffset of [-1.12,1.12]){
-   const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.18,12),rubber);
+   const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.18,12),serviceTire);
    wheel.rotation.z=Math.PI/2;wheel.position.set(side*1.08,.38,zOffset);vehicle.add(wheel);
   }
   const beacon=new THREE.Mesh(new THREE.SphereGeometry(.13,8,6),new THREE.MeshBasicMaterial({color:0xffc84d}));beacon.position.set(0,2.17,.45);vehicle.add(beacon);
