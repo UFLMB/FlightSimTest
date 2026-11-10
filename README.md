@@ -31,3 +31,5 @@ The original `.sb3` is retained unchanged. Work is isolated on `scratch-rebuild`
 Original Scratch project: **Flight Simulator 3D v2.8**, by **WO997**. The original project and its assets remain the source material for this browser package.
 
 Build validation is performed automatically before the Pages deployment.
+
+Latest source is packaged and deployed from the main branch by GitHub Actions.
