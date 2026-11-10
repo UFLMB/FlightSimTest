@@ -273,7 +273,7 @@ export function createWorld(scene) {
   const clouds = addClouds(scene);
   return { clouds, airport, terrainHeightAt, update(dt, wind) {
     clouds.rotation.y += dt * .0007;
-    landscape.update(dt);
+    landscape.update(dt, wind);
     if (wind && airport.userData.windSock) airport.userData.windSock.rotation.y = Math.atan2(-wind.z, wind.x);
   }, dispose() {} };
 }
