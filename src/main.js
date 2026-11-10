@@ -16,16 +16,16 @@ const renderer = new THREE.WebGLRenderer({
   powerPreference: "high-performance",
   logarithmicDepthBuffer: false
 });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.35 : 1.8));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.55 : 2));
 renderer.setSize(window.innerWidth, window.innerHeight, false);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.08;
-renderer.shadowMap.enabled = !isMobile;
+renderer.toneMappingExposure = 1.16;
+renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0xb9cbd0, .00072);
+scene.fog = new THREE.FogExp2(0xb9cbd0, .00055);
 const sky = new Sky();
 sky.scale.setScalar(12000);
 scene.add(sky);
@@ -44,7 +44,7 @@ scene.add(hemisphere);
 const sunlight = new THREE.DirectionalLight(0xfff0d5, 3.1);
 sunlight.position.set(-180, 260, 120);
 sunlight.castShadow = !isMobile;
-sunlight.shadow.mapSize.set(isMobile ? 1024 : 2048, isMobile ? 1024 : 2048);
+sunlight.shadow.mapSize.set(isMobile ? 1024 : 3072, isMobile ? 1024 : 3072);
 sunlight.shadow.camera.left = -220;
 sunlight.shadow.camera.right = 220;
 sunlight.shadow.camera.top = 220;
@@ -52,6 +52,8 @@ sunlight.shadow.camera.bottom = -220;
 sunlight.shadow.camera.near = 1;
 sunlight.shadow.camera.far = 650;
 sunlight.shadow.bias = -.00018;
+sunlight.shadow.normalBias = .025;
+sunlight.shadow.radius = isMobile ? 2 : 3;
 scene.add(sunlight);
 
 const camera = new THREE.PerspectiveCamera(64, window.innerWidth / window.innerHeight, .1, 2600);
