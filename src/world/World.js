@@ -35,17 +35,17 @@ const HALF = WORLD_EXTENT / 2;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 export function tileAt(x, z) {
-  const ix = Math.floor((x + HALF) / TILE_SIZE);
-  const iz = Math.floor((z + HALF) / TILE_SIZE);
-  if (ix < 0 || iz < 0 || ix >= WORLD_SIZE || iz >= WORLD_SIZE) return 0;
-  return TERRAIN_GRID[iz * WORLD_SIZE + ix] ?? 0;
+  const wrap = value => ((value % WORLD_SIZE) + WORLD_SIZE) % WORLD_SIZE;
+  const ix = wrap(Math.round(x / TILE_SIZE));
+  const iz = wrap(Math.round(z / TILE_SIZE));
+  return TERRAIN_GRID[ix * WORLD_SIZE + iz] ?? 0;
 }
 
 export function terrainHeightAt(x, z) {
   const code = tileAt(x, z);
   if (code <= 0) return 0;
-  const cx = (Math.floor((x + HALF) / TILE_SIZE) + 0.5) * TILE_SIZE - HALF;
-  const cz = (Math.floor((z + HALF) / TILE_SIZE) + 0.5) * TILE_SIZE - HALF;
+  const cx = Math.round(x / TILE_SIZE) * TILE_SIZE;
+  const cz = Math.round(z / TILE_SIZE) * TILE_SIZE;
   const distance = Math.max(Math.abs(x - cx), Math.abs(z - cz));
   return Math.max(0, (20 - distance) * code / 20);
 }
@@ -98,32 +98,33 @@ function createTerrainMesh() {
 
 function addRunway(scene) {
   const group = new THREE.Group();
-  const shoulder = new THREE.Mesh(new THREE.PlaneGeometry(54, 630), new THREE.MeshStandardMaterial({ color: 0x777c68, roughness: 1 }));
+  // Original terrain codes -2 form a 40 m wide strip at x=0, z=-40..200.
+  const shoulder = new THREE.Mesh(new THREE.PlaneGeometry(48, 280), new THREE.MeshStandardMaterial({ color: 0x777c68, roughness: 1 }));
   shoulder.rotation.x = -Math.PI / 2;
-  shoulder.position.y = .025;
+  shoulder.position.set(0, .025, 80);
   group.add(shoulder);
-  const asphalt = new THREE.Mesh(new THREE.PlaneGeometry(44, 620), new THREE.MeshStandardMaterial({ color: 0x343b40, roughness: .94 }));
+  const asphalt = new THREE.Mesh(new THREE.PlaneGeometry(40, 280), new THREE.MeshStandardMaterial({ color: 0x343b40, roughness: .94 }));
   asphalt.rotation.x = -Math.PI / 2;
-  asphalt.position.y = .055;
+  asphalt.position.set(0, .055, 80);
   asphalt.receiveShadow = true;
   group.add(asphalt);
   const paint = new THREE.MeshBasicMaterial({ color: 0xe4e5d9 });
-  for (let z = -285; z <= 285; z += 34) {
-    const dash = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 18), paint);
+  for (let z = -42; z <= 202; z += 30) {
+    const dash = new THREE.Mesh(new THREE.PlaneGeometry(.85, 14), paint);
     dash.rotation.x = -Math.PI / 2;
     dash.position.set(0, .068, z);
     group.add(dash);
   }
-  for (const x of [-20, 20]) {
-    const edge = new THREE.Mesh(new THREE.PlaneGeometry(.65, 620), paint);
+  for (const x of [-18, 18]) {
+    const edge = new THREE.Mesh(new THREE.PlaneGeometry(.6, 280), paint);
     edge.rotation.x = -Math.PI / 2;
-    edge.position.set(x, .07, 0);
+    edge.position.set(x, .07, 80);
     group.add(edge);
   }
   for (const x of [-12, -8, -4, 4, 8, 12]) {
-    const threshold = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 22), paint);
+    const threshold = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 15), paint);
     threshold.rotation.x = -Math.PI / 2;
-    threshold.position.set(x, .072, -270);
+    threshold.position.set(x, .072, -49);
     group.add(threshold);
   }
   scene.add(group);
@@ -166,12 +167,28 @@ function addVegetation(scene) {
 }
 
 function addWater(scene) {
-  const water = new THREE.Mesh(
-    new THREE.PlaneGeometry(300, 300),
-    new THREE.MeshPhysicalMaterial({ color: 0x356e80, roughness: .24, metalness: .18, transparent: true, opacity: .78, clearcoat: .8 })
+  const cells = [];
+  for (let ix = 0; ix < WORLD_SIZE; ix++) {
+    for (let iz = 0; iz < WORLD_SIZE; iz++) {
+      if (TERRAIN_GRID[ix * WORLD_SIZE + iz] !== -1) continue;
+      const x = (ix > 12 ? ix - WORLD_SIZE : ix) * TILE_SIZE;
+      const z = (iz > 12 ? iz - WORLD_SIZE : iz) * TILE_SIZE;
+      cells.push([x, z]);
+    }
+  }
+  const water = new THREE.InstancedMesh(
+    new THREE.PlaneGeometry(TILE_SIZE, TILE_SIZE),
+    new THREE.MeshPhysicalMaterial({ color: 0x356e80, roughness: .24, metalness: .18, transparent: true, opacity: .8, clearcoat: .8 }),
+    cells.length
   );
-  water.rotation.x = -Math.PI / 2;
-  water.position.set(-250, .018, -150);
+  const dummy = new THREE.Object3D();
+  cells.forEach(([x, z], i) => {
+    dummy.position.set(x, .035, z);
+    dummy.rotation.x = -Math.PI / 2;
+    dummy.updateMatrix();
+    water.setMatrixAt(i, dummy.matrix);
+  });
+  water.receiveShadow = true;
   scene.add(water);
 }
 
