@@ -5,6 +5,7 @@ import { FlightModel } from "./flight/FlightModel.js";
 import { createWorld } from "./world/World.js";
 import { createAircraft } from "./aircraft/Aircraft.js";
 import { HUD, InputController } from "./ui/HUD.js";
+import { GyroController } from "./ui/GyroController.js";
 
 const canvas = document.querySelector("#flight-canvas");
 const isMobile = matchMedia("(max-width: 700px)").matches || /Android|iPhone|iPad/i.test(navigator.userAgent);
@@ -59,7 +60,8 @@ const model = new FlightModel();
 const world = createWorld(scene);
 const aircraft = createAircraft(scene);
 const hud = new HUD(model);
-const input = new InputController(model);
+const gyro = new GyroController();
+const input = new InputController(model, gyro);
 
 const cameraModes = [
   { name: "CHASE CAM", offset: new THREE.Vector3(0, 5.5, -18), target: new THREE.Vector3(0, 1.2, 5) },
@@ -153,7 +155,7 @@ function animate(now) {
   }
 
   aircraft.update(model, elapsed);
-  world.clouds.rotation.y += elapsed * .0007;
+  world.update(elapsed);
   updateCamera(elapsed || 1 / 60);
   hud.update(fps);
   if (model.broken) document.querySelector("#crash-screen").classList.remove("hidden");
