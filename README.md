@@ -5,9 +5,17 @@ This repository preserves the original Scratch project and packages it as a stan
 ## Source of truth
 
 - Original project: `Flight Simulator 3D v2.8.sb3`
-- Reconstruction strategy: run the original Scratch project through the pinned TurboWarp Packager runtime rather than approximating its 3D renderer, flight physics, controls, terrain, or effects.
-- Source analysis: `scripts/analyze-scratch.mjs`
-- Browser build: `scripts/package-project.cjs`
+- Original aircraft, terrain, flight physics, controls, and effects remain intact.
+- Browser runtime: pinned TurboWarp Packager 3.14.0.
+- Build script: `scripts/package-project.cjs`
+
+## Graphics/runtime profile
+
+The current visual-quality pass enables TurboWarp's high-quality pen renderer. The original project draws its 3D scene with pen-based rendering, so this raises the backing resolution used for those strokes and improves edge/detail clarity on capable displays.
+
+The simulation timing remains at the original 30 FPS. Frame interpolation and turbo mode stay disabled because this is a frame-dependent 3D project and changing its timing could affect flight physics or performance. High-quality rendering can use more GPU memory and may reduce performance on older phones; test both desktop and mobile.
+
+This pass improves rendering clarity. It does not yet replace the original Scratch-generated aircraft/terrain with new photorealistic 3D models or physically based materials.
 
 ## Build
 
@@ -22,14 +30,8 @@ The standalone HTML game is written to `dist/index.html`.
 
 ## Deployment
 
-The `Deploy Flight Simulator to GitHub Pages` workflow builds the standalone HTML and deploys the `dist` directory from the `scratch-rebuild` branch.
-
-The original `.sb3` is retained unchanged. Work is isolated on `scratch-rebuild`; the `main` branch remains untouched until the build and browser checks pass.
+The `Deploy Flight Simulator to GitHub Pages` workflow builds and deploys the `dist` directory from `main`.
 
 ## Attribution
 
 Original Scratch project: **Flight Simulator 3D v2.8**, by **WO997**. The original project and its assets remain the source material for this browser package.
-
-Build validation is performed automatically before the Pages deployment.
-
-Latest source is packaged and deployed from the main branch by GitHub Actions.

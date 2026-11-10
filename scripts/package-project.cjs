@@ -11,8 +11,18 @@ async function main() {
     if (type === "assets") console.log(`Assets: ${a}/${b}`);
     else console.log(`Preparing: ${type} ${a ?? ""} ${b ?? ""}`);
   });
+
   const packager = new Packager.Packager();
   packager.project = loadedProject;
+
+  // The original aircraft/terrain renderer is pen-based 3D. Render its strokes
+  // at the device's higher-quality backing resolution, but keep the original
+  // 30 FPS timing and disable interpolation to protect frame-dependent physics.
+  packager.options.highQualityPen = true;
+  packager.options.framerate = 30;
+  packager.options.interpolation = false;
+  packager.options.turbo = false;
+
   const result = await packager.package();
   if (result.type !== "text/html") throw new Error(`Expected standalone HTML, got ${result.type}`);
   fs.mkdirSync("dist", { recursive: true });
@@ -21,6 +31,12 @@ async function main() {
     title: "Flight Simulator 3D v2.8",
     source: "Flight Simulator 3D v2.8.sb3",
     packager: require("@turbowarp/packager/package.json").version,
+    graphicsProfile: {
+      highQualityPen: packager.options.highQualityPen,
+      framerate: packager.options.framerate,
+      interpolation: packager.options.interpolation,
+      turbo: packager.options.turbo
+    },
     generatedAt: new Date().toISOString(),
     outputBytes: result.data.length
   }, null, 2));
