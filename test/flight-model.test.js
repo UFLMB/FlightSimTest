@@ -51,3 +51,11 @@ test("hard landing marks the aircraft as broken", () => {
   model.step(1 / 30, terrainHeightAt);
   assert.equal(model.broken, true);
 });
+
+test("civil flight model has no rocket or boost controls", () => {
+  const model = new FlightModel();
+  assert.equal("rocket" in model.controls, false);
+  assert.equal("rocketActive" in model, false);
+  assert.equal("rocketCharge" in model, false);
+  assert.equal(typeof model.toggleRocket, "undefined");
+});
