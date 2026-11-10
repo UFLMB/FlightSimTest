@@ -85,7 +85,7 @@ test("landing gear transitions smoothly between endpoints", () => {
 
 test("hard landing is detected and terminates the flight", () => {
   const model = new FlightModel();
-  model.position.set(0, 2.2, 5);
+  model.position.set(0, 2.08, 5);
   model.velocity.set(0, -5.5, 0);
   model.onGround = false;
   model.step(1 / 60, terrainHeightAt);
