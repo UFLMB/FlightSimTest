@@ -49,5 +49,16 @@ export function createLivingLandscape(scene,terrainHeightAt,tileAt){
  const birdMat=new THREE.MeshBasicMaterial({color:0x354a51});
  for(let i=0;i<15;i++){const bird=new THREE.Group(),wing=new THREE.Mesh(new THREE.BoxGeometry(1.8,.08,.18),birdMat);wing.rotation.z=-.12;bird.add(wing);bird.position.set(-180+i*4.5,65+Math.sin(i)*3,170+Math.cos(i*.7)*10);birds.add(bird);}
  scene.add(birds);
- return{update(dt){turbines.forEach((r,i)=>r.rotation.z+=dt*(1.4+i*.09));birds.position.x+=dt*2.4;if(birds.position.x>500)birds.position.x=-500;}};
+ const stats={windTurbines:turbines.length,birds:birds.children.length};
+ return{turbines,birds,stats,update(dt,wind){
+  const speed=wind?wind.length():4;
+  turbines.forEach((rotor,i)=>rotor.rotation.z+=dt*(.45+Math.min(15,speed)*.15+i*.025));
+  const wx=wind?wind.x:0,wz=wind?wind.z:0;
+  birds.position.x+=dt*(1.1+wx*.55);
+  birds.position.z+=dt*wz*.35;
+  if(birds.position.x>500)birds.position.x=-500;
+  if(birds.position.x< -500)birds.position.x=500;
+  if(birds.position.z>500)birds.position.z=-500;
+  if(birds.position.z< -500)birds.position.z=500;
+ }};
 }
