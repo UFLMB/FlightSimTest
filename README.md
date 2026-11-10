@@ -10,6 +10,7 @@ The original **Flight Simulator 3D v2.8** Scratch project is preserved as a refe
 - Aerodynamic lift curve, angle of attack, progressive stall, parasite and induced drag, engine spool, ground effect and gear drag.
 - Roll, pitch and yaw response with aerodynamic authority, damping and coordinated-turn tendency.
 - Ground contact, rolling resistance, braking and hard-landing detection.
+- Variable ambient wind and gusts affect angle of attack, lift, drag and indicated airspeed; the live wind readout reports direction and knots.
 - Original 25 × 25 terrain reference, procedural runway/airport, vegetation and living landscape.
 - Civil aircraft only. No rocket, weapons or boost mechanic.
 - Keyboard controls on desktop and calibrated device gyroscope plus dedicated flight-systems controls on mobile.
@@ -24,7 +25,7 @@ The original **Flight Simulator 3D v2.8** Scratch project is preserved as a refe
 
 ## Realism roadmap
 
-This first aerodynamics pass replaces the old Scratch-derived acceleration model with an SI-unit aerodynamic model. It is a simulation foundation, not a claim of certified flight dynamics. Further work is required for a complete high-fidelity experience: aircraft-specific performance data and trim, richer cockpit/instruments, weather and wind, terrain/airport asset quality, sound, traffic, navigation and extensive take-off/landing regression scenarios. Aircraft-specific tuning should be based on the final selected aircraft rather than guessed specifications.
+This first aerodynamics pass replaces the old Scratch-derived acceleration model with an SI-unit aerodynamic model. It is a simulation foundation, not a claim of certified flight dynamics. Further work is required for a complete high-fidelity experience: aircraft-specific performance data and trim, richer cockpit/instruments, aircraft-specific performance data and trim, more detailed terrain/airport assets, sound, traffic, navigation and extensive crosswind/take-off/landing regression scenarios. Aircraft-specific tuning should be based on the final selected aircraft rather than guessed specifications.
 
 ## Validation
 
