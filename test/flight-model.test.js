@@ -48,6 +48,7 @@ test("aircraft develops lift and can climb with positive pitch input", () => {
   const model = new FlightModel();
   model.position.set(0, 120, 5);
   model.velocity.set(0, 0, 38);
+  model.onGround = false;
   model.setControl("pitch", 0.25);
   step(model, 5);
   assert.ok(model.position.y > 120);
@@ -86,6 +87,7 @@ test("hard landing is detected and terminates the flight", () => {
   const model = new FlightModel();
   model.position.set(0, 2.2, 5);
   model.velocity.set(0, -5.5, 0);
+  model.onGround = false;
   model.step(1 / 60, terrainHeightAt);
   assert.equal(model.broken, true);
 });
