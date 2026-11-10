@@ -56,3 +56,6 @@
  .rudder-buttons{display:flex;gap:5px}.rudder-buttons button{width:32px;height:20px;border:1px solid rgba(184,230,107,.4);border-radius:5px;background:rgba(184,230,107,.12);color:var(--lime);touch-action:none}
  .footer,.bottom-left{display:none}
 }
+
+/* Selectable weather preset control */
+.mobile-weather-cycle{border:1px solid rgba(184,230,107,.42);border-radius:6px;background:rgba(184,230,107,.1);padding:4px 6px;color:#dce8e9;font:6px 'DM Mono',monospace;letter-spacing:.2px;white-space:nowrap;cursor:pointer}.mobile-weather-cycle b{color:var(--lime);font-weight:700}@media(max-width:700px){.control-panel-heading{gap:3px}.mobile-weather-cycle{font-size:5.6px;padding:4px 5px}}
