@@ -7,16 +7,18 @@ This repository is transitioning from a packaged Scratch runtime to a native bro
 - Three.js / WebGL renderer for the 3D scene.
 - Native JavaScript flight model with a fixed 30 Hz simulation step.
 - Original 25 × 25 terrain grid copied from the saved Scratch project.
-- Procedural aircraft, terrain, runway, vegetation, clouds, lighting, and cockpit-style telemetry.
-- Responsive keyboard and touch controls.
+- Procedural civil aircraft, terrain, runway, vegetation, clouds, lighting, and cockpit-style telemetry.
+- Responsive keyboard and touch controls, with a dedicated mobile flight-control panel.
 
-## Original control mapping
+## Controls
 
 - `S`: increase throttle; `X`: decrease throttle; `Space`: reduce throttle/brake.
 - Arrow up/down: pitch; arrow left/right: roll.
 - `A` / `D`: rudder/yaw.
-- `W`: landing gear; `R`: rocket boost; `C`: camera cycle (native addition).
-- Mobile: virtual stick and touch throttle/brake/gear.
+- `W`: landing gear; `C`: camera cycle.
+- Mobile: left virtual flight stick (pitch and bank); right touch panel (throttle up/down, brake, landing gear, camera).
+
+This is a civil aviation experience. There is no rocket, weapon, or boost control in the native flight model.
 
 ## Fidelity and validation
 
