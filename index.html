@@ -25,6 +25,7 @@
     <aside class="right-tools" aria-label="Flight options">
       <button id="camera-button" class="tool-button" type="button"><span>CAMERA</span><b>CHANGE</b></button>
       <button id="gear-button" class="tool-button" type="button"><span>LANDING GEAR</span><b id="gear-state">DOWN</b></button>
+      <button id="weather-cycle" class="tool-button" type="button"><span>WEATHER PRESET</span><b id="weather-mode">STANDARD</b></button>
     </aside>
     <div class="bottom-left">
       <div class="compass"><div id="compass-needle"></div><span>N</span><small>HDG <b id="heading">000</b>°</small></div>
@@ -43,7 +44,7 @@
         <div id="gyro-message" class="gyro-message">Hold your phone naturally, then enable motion control</div>
       </div>
       <div class="mobile-action-panel">
-        <div class="control-panel-heading"><span>FLIGHT SYSTEMS</span><small>TOUCH CONTROLS</small></div>
+        <div class="control-panel-heading"><span>FLIGHT SYSTEMS</span><button id="mobile-weather-cycle" class="mobile-weather-cycle" type="button">WEATHER <b id="mobile-weather-mode">STANDARD</b> ↻</button></div>
         <div class="mobile-control-grid">
           <button id="mobile-throttle-up" class="mobile-control throttle-control" type="button" aria-label="Increase throttle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-7 7 7-7 7 7"/></svg><span>THROTTLE</span><b>+</b><small id="mobile-throttle-value">0%</small></button>
           <button id="mobile-throttle-down" class="mobile-control" type="button" aria-label="Decrease throttle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14m-7-7 7 7 7-7"/></svg><span>REDUCE</span><b>−</b><small>POWER</small></button>
