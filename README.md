@@ -21,11 +21,11 @@ The original **Flight Simulator 3D v2.8** Scratch project is preserved as a refe
 - Arrow up/down: pitch; arrow left/right: roll.
 - `A` / `D`: rudder.
 - `C`: camera cycle. The selected Cessna 172 uses fixed, non-retractable landing gear.
-- Mobile: enable and calibrate gyroscope for pitch/bank; use the touch flight panel for throttle, brake, rudder, gear and camera.
+- Mobile: enable and calibrate gyroscope for pitch/bank; use the touch flight panel for throttle, brake, rudder and camera.
 
 ## Realism roadmap
 
-This first aerodynamics pass replaces the old Scratch-derived acceleration model with an SI-unit aerodynamic model. It is a simulation foundation, not a claim of certified flight dynamics. Further work is required for a complete high-fidelity experience: aircraft-specific performance data and trim, richer cockpit/instruments, aircraft-specific performance data and trim, sound, traffic, navigation and extensive crosswind/take-off/landing regression scenarios. Aircraft-specific tuning should be based on the final selected aircraft rather than guessed specifications.
+This first aerodynamics pass replaces the old Scratch-derived acceleration model with an SI-unit aerodynamic model. It is a simulation foundation, not a claim of certified flight dynamics. Further work is required for a complete high-fidelity experience: aircraft-specific performance data and trim, richer cockpit/instrument interaction, sound, traffic, navigation and extensive crosswind/take-off/landing regression scenarios. Aircraft-specific tuning should be based on the final selected aircraft rather than guessed specifications.
 
 ## Validation
 
