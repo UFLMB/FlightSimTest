@@ -272,3 +272,13 @@ test("aircraft collision callback terminates flight at a solid obstacle", () => 
   assert.equal(model.broken, true);
   assert.equal(model.collisionReason, "tree");
 });
+
+
+test("world vegetation returns a usable collision set and spatial collision lookup is safe", async () => {
+  const { createWorld } = await import("../src/world/World.js");
+  const { Scene } = await import("three");
+  const world = createWorld(new Scene());
+  assert.equal(typeof world.collisionAt, "function");
+  assert.equal(world.collisionAt(0, 300, 0), null, "clear runway corridor must remain unobstructed");
+  assert.equal(world.collisionAt(0, 300, 0)?.type, undefined);
+});
