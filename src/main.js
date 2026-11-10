@@ -191,7 +191,7 @@ function animate(now) {
   }
 
   aircraft.update(model, elapsed);
-  world.update(elapsed);
+  world.update(elapsed, weather.wind);
   updateCamera(elapsed || 1 / 60);
   hud.update(fps);
   if (model.broken) document.querySelector("#crash-screen").classList.remove("hidden");
