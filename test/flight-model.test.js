@@ -189,6 +189,9 @@ test("airport includes taxiway lighting, PAPI guidance, parking stands and ramp 
   assert.equal(airport.userData.detailFeatures.papiUnits, 4);
   assert.equal(airport.userData.detailFeatures.parkingStands, 4);
   assert.equal(airport.userData.detailFeatures.serviceVehicles, 2);
+  assert.equal(airport.userData.detailFeatures.approachLights, 23);
+  assert.equal(airport.userData.detailFeatures.taxiSigns, 2);
+  assert.ok(airport.userData.beacon, "tower beacon is available for animation");
   assert.ok(airport.userData.windSock, "windsock is exposed for live wind-direction animation");
   assert.ok(scene.children.includes(airport));
 });
@@ -227,4 +230,16 @@ test("living landscape responds to wind with turbine speed and bird drift", () =
   const stormDelta = landscape.turbines[0].rotation.z - stormStart;
   assert.ok(stormDelta > calmDelta, "stronger wind accelerates turbine rotation");
   assert.ok(landscape.birds.position.z < 0, "bird flock drifts with the wind vector");
+});
+
+
+test("airport beacon rotates and keeps approach lighting in the scene", () => {
+  const scene = new Scene();
+  const airport = createAirport(scene);
+  const beacon = airport.userData.beacon;
+  const initial = beacon.rotation.y;
+  beacon.rotation.y += 1 / 60 * 1.15;
+  assert.ok(beacon.rotation.y > initial);
+  assert.equal(airport.userData.detailFeatures.approachLights, 23);
+  assert.equal(airport.userData.detailFeatures.taxiSigns, 2);
 });
