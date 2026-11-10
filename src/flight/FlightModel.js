@@ -156,7 +156,9 @@ export class FlightModel {
       if (this.gear === GEAR_DOWN || this.gear === GEAR_UP) this.gearState = 0;
     }
 
-    // Translational dynamics in SI units.
+    // Translational dynamics in SI units. While supported by the runway, the
+    // ground reaction cancels gravity until aerodynamic lift can sustain flight.
+    if (this.onGround && this.force.y < 0) this.force.y = 0;
     this.velocity.addScaledVector(this.force, h / MASS);
     if (this.onGround) {
       const rollingFriction = input.brake ? 2.8 : 0.12;
