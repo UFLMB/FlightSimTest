@@ -79,6 +79,29 @@ let previousTime = performance.now();
 let fps = 0;
 let fpsFrames = 0;
 let fpsStart = previousTime;
+function applyWeatherVisuals() {
+  const visual = weather.visual;
+  scene.fog.color.setHex(visual.fogColor);
+  scene.fog.density = visual.fogDensity;
+  scene.background.setHex(visual.fogColor);
+  skyUniforms.turbidity.value = visual.turbidity;
+  skyUniforms.rayleigh.value = visual.rayleigh;
+  sunlight.intensity = visual.sunIntensity;
+  sunlight.color.setHex(weather.presetId === "storm" ? 0xb9c8d2 : 0xfff0d5);
+  renderer.toneMappingExposure = visual.exposure;
+  world.clouds.material.opacity = visual.cloudOpacity;
+  world.clouds.material.color.setHex(visual.cloudColor);
+  const label = weather.label;
+  document.querySelector("#weather-mode").textContent = label;
+  document.querySelector("#mobile-weather-mode").textContent = label;
+}
+
+function cycleWeather() {
+  weather.nextPreset();
+  applyWeatherVisuals();
+  hud.update(fps);
+}
+
 const desiredCameraPosition = new THREE.Vector3();
 const desiredLookAt = new THREE.Vector3();
 const forward = new THREE.Vector3();
@@ -134,6 +157,8 @@ document.addEventListener("camera-cycle", setCameraMode);
 document.addEventListener("flight-restart", restartFlight);
 document.querySelector("#camera-button").addEventListener("click", setCameraMode);
 document.querySelector("#mobile-camera").addEventListener("click", setCameraMode);
+document.querySelector("#weather-cycle").addEventListener("click", cycleWeather);
+document.querySelector("#mobile-weather-cycle").addEventListener("click", cycleWeather);
 document.querySelector("#start-button").addEventListener("click", () => {
   started = true;
   document.querySelector("#start-screen").classList.add("hidden");
@@ -173,5 +198,6 @@ function animate(now) {
   renderer.render(scene, camera);
 }
 
+applyWeatherVisuals();
 document.querySelector("#loading").classList.add("done");
 requestAnimationFrame(animate);
