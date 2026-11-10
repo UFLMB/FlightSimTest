@@ -10,8 +10,9 @@ const icon = (name) => {
 };
 
 export class HUD {
-  constructor(model) {
+  constructor(model, weather) {
     this.model = model;
+    this.weather = weather;
     this.nodes = {
       speed: document.querySelector("#speed"),
       altitude: document.querySelector("#altitude"),
@@ -21,6 +22,7 @@ export class HUD {
       heading: document.querySelector("#heading"),
       compass: document.querySelector("#compass-needle"),
       status: document.querySelector("#flight-status"),
+      wind: document.querySelector("#wind-status"),
       gear: document.querySelector("#gear-state"),
       mobileGear: document.querySelector("#mobile-gear-state"),
       mobileThrottle: document.querySelector("#mobile-throttle-value"),
@@ -40,6 +42,7 @@ export class HUD {
     n.heading.textContent = String(Math.round(m.heading)).padStart(3, "0");
     n.compass.style.transform = `rotate(${m.heading}deg)`;
     n.status.textContent = m.broken ? "CRASHED" : m.speed > .05 ? "IN FLIGHT" : "ON GROUND";
+    if (n.wind && this.weather) n.wind.textContent = `WIND ${String(Math.round(this.weather.directionFrom)).padStart(3, "0")}° / ${Math.round(this.weather.speed * 1.943844)} KT`;
     const gear = m.gear < -1.95 ? "DOWN" : m.gear > -.05 ? "UP" : "MOVING";
     n.gear.textContent = gear;
     n.mobileGear.textContent = gear;

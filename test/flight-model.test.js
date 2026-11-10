@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { FlightModel } from "../src/flight/FlightModel.js";
+import { WeatherSystem } from "../src/flight/WeatherSystem.js";
+import { Vector3 } from "three";
 import { createAircraft } from "../src/aircraft/Aircraft.js";
 import { Scene } from "three";
 import { TERRAIN_GRID, tileAt, terrainHeightAt } from "../src/world/World.js";
@@ -96,6 +98,23 @@ test("hard landing is detected and terminates the flight", () => {
   model.onGround = false;
   model.step(1 / 60, terrainHeightAt);
   assert.equal(model.broken, true);
+});
+
+test("headwind increases indicated airspeed without changing ground speed", () => {
+  const model = new FlightModel();
+  model.position.set(0, 100, 5);
+  model.velocity.set(0, 0, 30);
+  model.onGround = false;
+  model.step(1 / 60, terrainHeightAt, new Vector3(0, 0, -5));
+  assert.ok(model.airspeed > model.speed);
+  assert.ok(model.indicatedAirspeed > model.speed * 1.943844);
+});
+
+test("weather wind direction and gust speed remain finite and bounded", () => {
+  const weather = new WeatherSystem();
+  for (let t = 0; t < 1800; t += 3) weather.update(t);
+  assert.ok(Number.isFinite(weather.directionFrom));
+  assert.ok(weather.speed >= 1.2 && weather.speed < 6);
 });
 
 test("civil aircraft exposes no rocket or boost controls", () => {

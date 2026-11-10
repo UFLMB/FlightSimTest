@@ -14,6 +14,7 @@ const GRAVITY = 9.80665;
 const STALL_ANGLE = 15 * RAD;
 const GEAR_DOWN = -2;
 const GEAR_UP = 0;
+const ZERO_WIND = new Vector3();
 
 /**
  * A lightweight, fixed-step, six-degree-of-freedom-inspired light-aircraft model.
@@ -27,6 +28,7 @@ export class FlightModel {
     this.up = new Vector3(0, 1, 0);
     this.localVelocity = new Vector3();
     this.airVelocity = new Vector3();
+    this.airspeed = 0;
     this.force = new Vector3();
     this.orientation = new Quaternion();
     this.deltaRotation = new Quaternion();
@@ -37,6 +39,7 @@ export class FlightModel {
   reset() {
     this.position = new Vector3(0, 2.15, 5);
     this.velocity = new Vector3();
+    this.airspeed = 0;
     this.orientation.identity();
     this.pitch = 0;
     this.yaw = 0;
@@ -71,11 +74,11 @@ export class FlightModel {
   }
 
   get speed() { return this.velocity.length(); }
-  get indicatedAirspeed() { return this.speed * 1.943844; }
+  get indicatedAirspeed() { return this.airspeed * 1.943844; }
   get forwardSpeed() { return this.velocity.dot(this.forward); }
   get throttlePercent() { return Math.round(this.power * 100); }
 
-  step(dt, terrainHeightAt) {
+  step(dt, terrainHeightAt, wind = ZERO_WIND) {
     if (this.broken) return;
     const h = Math.min(1 / 30, Math.max(1 / 240, dt));
     const input = this.controls;
@@ -90,8 +93,10 @@ export class FlightModel {
     this.right.set(1, 0, 0).applyQuaternion(this.orientation).normalize();
     this.up.set(0, 1, 0).applyQuaternion(this.orientation).normalize();
 
-    const speed = Math.max(0.01, this.velocity.length());
-    this.localVelocity.copy(this.velocity).applyQuaternion(this.orientation.clone().invert());
+    this.airVelocity.copy(this.velocity).sub(wind);
+    this.airspeed = this.airVelocity.length();
+    const speed = Math.max(0.01, this.airspeed);
+    this.localVelocity.copy(this.airVelocity).applyQuaternion(this.orientation.clone().invert());
     const longitudinal = this.localVelocity.z;
     const lateral = this.localVelocity.x;
     const vertical = this.localVelocity.y;
@@ -111,7 +116,7 @@ export class FlightModel {
       const postStall = Math.max(0.12, Math.cos(Math.min(Math.PI / 2, (absAlpha - STALL_ANGLE) * 2.2)));
       cl = Math.sign(alpha || 1) * clAtStall * postStall;
     }
-    this.stalled = speed < 25 || absAlpha > STALL_ANGLE;
+    this.stalled = this.airspeed < 25 || absAlpha > STALL_ANGLE;
 
     const inducedDrag = (cl * cl) / (Math.PI * 0.78 * (WING_SPAN * WING_SPAN / WING_AREA));
     const parasiteDrag = 0.032 + (gearDown ? 0.018 : 0) + (input.brake && this.onGround ? 0.5 : 0);
@@ -123,7 +128,7 @@ export class FlightModel {
     // Aerodynamic forces in body axes, transformed into world space.
     this.force.set(0, lift, 0).applyQuaternion(this.orientation);
     this.force.addScaledVector(this.forward, thrust);
-    if (speed > 0.05) this.force.addScaledVector(this.velocity, -drag / speed);
+    if (speed > 0.05) this.force.addScaledVector(this.airVelocity, -drag / speed);
     this.force.y -= MASS * GRAVITY;
 
     // Ground effect within roughly one wingspan of the surface.
