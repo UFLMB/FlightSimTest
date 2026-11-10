@@ -275,5 +275,6 @@ export function createWorld(scene) {
     clouds.rotation.y += dt * .0007;
     landscape.update(dt, wind);
     if (wind && airport.userData.windSock) airport.userData.windSock.rotation.y = Math.atan2(-wind.z, wind.x);
+    if (airport.userData.beacon) airport.userData.beacon.rotation.y += dt * 1.15;
   }, dispose() {} };
 }
