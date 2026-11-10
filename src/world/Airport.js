@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { loadSurfaceTexture } from "./SurfaceTextures.js";
 
 const makeBox=(group,x,y,z,w,h,d,material)=>{
  const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
@@ -10,8 +11,11 @@ const plane=(group,w,d,x,y,z,material)=>{
 };
 export function createAirport(scene){
  const g=new THREE.Group();
- const asphalt=new THREE.MeshStandardMaterial({color:0x343a3d,roughness:.94});
- const concrete=new THREE.MeshStandardMaterial({color:0x777d7d,roughness:.96});
+ const asphaltMap=loadSurfaceTexture("asphalt-color.jpg",4,24,THREE.SRGBColorSpace);
+ const concreteMap=loadSurfaceTexture("concrete-color.jpg",20,18,THREE.SRGBColorSpace);
+ const concreteRoughness=loadSurfaceTexture("concrete-roughness.jpg",20,18);
+ const asphalt=new THREE.MeshStandardMaterial({map:asphaltMap,color:0xffffff,roughness:.96});
+ const concrete=new THREE.MeshStandardMaterial({map:concreteMap,roughnessMap:concreteRoughness,roughness:.98});
  const white=new THREE.MeshBasicMaterial({color:0xf0f0df});
  const yellow=new THREE.MeshBasicMaterial({color:0xf2c84b});
  const wall=new THREE.MeshStandardMaterial({color:0xb9b9ad,roughness:.82});
