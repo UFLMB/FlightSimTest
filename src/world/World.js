@@ -37,7 +37,15 @@ export const WORLD_EXTENT = WORLD_SIZE * TILE_SIZE;
 const HALF = WORLD_EXTENT / 2;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
+export function isInsideWorld(x, z, margin = 0) {
+  return Number.isFinite(x) && Number.isFinite(z) &&
+    Math.abs(x) <= HALF - margin && Math.abs(z) <= HALF - margin;
+}
+
 export function tileAt(x, z) {
+  // The terrain is a finite 1,000 × 1,000 m area. Never wrap coordinates
+  // across an edge: outside points have no terrain tile.
+  if (!isInsideWorld(x, z)) return 0;
   const wrap = value => ((value % WORLD_SIZE) + WORLD_SIZE) % WORLD_SIZE;
   const ix = wrap(Math.round(x / TILE_SIZE));
   const iz = wrap(Math.round(z / TILE_SIZE));
@@ -187,6 +195,7 @@ function addVegetation(scene) {
   const trunks = new THREE.InstancedMesh(trunkGeo, trunkMat, 1300);
   const crowns = new THREE.InstancedMesh(crownGeo, crownMat, 1300);
   const dummy = new THREE.Object3D();
+  const collisionTrees = [];
   let count = 0;
   for (let i = 0; i < 1300; i++) {
     const x = (rand() - .5) * 920, z = (rand() - .5) * 920;
@@ -194,6 +203,7 @@ function addVegetation(scene) {
     const code = tileAt(x, z);
     if (code === -1 || terrainHeightAt(x, z) > 14) continue;
     const y = terrainHeightAt(x, z), scale = .65 + rand() * .85;
+    collisionTrees.push({ x, z, radius: 1.45 * scale, bottom: y, top: y + 5.2 * scale });
     dummy.position.set(x, y + scale * 1.05, z);
     dummy.scale.setScalar(scale);
     dummy.rotation.y = rand() * Math.PI * 2;
@@ -267,11 +277,39 @@ export function createWorld(scene) {
   scene.add(createTerrainMesh());
   addRunway(scene);
   const airport = createAirport(scene);
-  addVegetation(scene);
+  const treeColliders = addVegetation(scene);
   addWater(scene);
   const landscape = createLivingLandscape(scene, terrainHeightAt, tileAt);
   const clouds = addClouds(scene);
-  return { clouds, airport, terrainHeightAt, update(dt, wind) {
+  // Solid airport structures; dimensions follow the authored building meshes.
+  const airportColliders = [
+    { minX: -3, maxX: 71, minZ: -23, maxZ: -1, minY: 0, maxY: 10, type: "terminal" },
+    { minX: 104, maxX: 127, minZ: 26, maxZ: 46, minY: 0, maxY: 17, type: "hangar" },
+    { minX: 131, maxX: 154, minZ: 46, maxZ: 66, minY: 0, maxY: 17, type: "hangar" },
+    { minX: 158, maxX: 181, minZ: 26, maxZ: 46, minY: 0, maxY: 17, type: "hangar" },
+    { minX: -61, maxX: -53, minZ: -32, maxZ: -24, minY: 0, maxY: 35, type: "tower" },
+    { minX: 92, maxX: 96, minZ: 56, maxZ: 60, minY: 0, maxY: 4, type: "service vehicle" },
+    { minX: 3, maxX: 7, minZ: 52, maxZ: 56, minY: 0, maxY: 4, type: "service vehicle" }
+  ];
+  const collisionAt = (x, y, z) => {
+    const aircraftRadius = 5.6; // C172 wing half-span plus a small safety margin.
+    if (!isInsideWorld(x, z, aircraftRadius)) return { type: "world boundary" };
+    for (const obstacle of airportColliders) {
+      if (y + 2.2 >= obstacle.minY && y - 2.2 <= obstacle.maxY &&
+          x + aircraftRadius >= obstacle.minX && x - aircraftRadius <= obstacle.maxX &&
+          z + aircraftRadius >= obstacle.minZ && z - aircraftRadius <= obstacle.maxZ) {
+        return { type: obstacle.type };
+      }
+    }
+    for (const tree of treeColliders) {
+      if (y + 2.2 < tree.bottom || y - 2.2 > tree.top) continue;
+      const dx = x - tree.x, dz = z - tree.z;
+      const radius = aircraftRadius + tree.radius;
+      if (dx * dx + dz * dz < radius * radius) return { type: "tree" };
+    }
+    return null;
+  };
+  return { clouds, airport, terrainHeightAt, collisionAt, update(dt, wind) {
     clouds.rotation.y += dt * .0007;
     landscape.update(dt, wind);
     if (wind && airport.userData.windSock) airport.userData.windSock.rotation.y = Math.atan2(-wind.z, wind.x);
