@@ -10,8 +10,9 @@ const icon = (name) => {
 };
 
 export class HUD {
-  constructor(model) {
+  constructor(model, gyro) {
     this.model = model;
+    this.gyro = gyro;
     this.nodes = {
       speed: document.querySelector("#speed"),
       altitude: document.querySelector("#altitude"),
@@ -127,7 +128,7 @@ export class InputController {
   }
 
   update() {
-    const keys = this.keys, stick = this.pointer;
+    const keys = this.keys, stick = this.gyro?.active ? this.gyro.controls : this.pointer;
     const throttle = keys.has("s") || this.touchThrottleUp ? 1 :
       keys.has("x") || this.touchThrottleDown ? -1 : 0;
     this.model.setControl("throttle", throttle);
