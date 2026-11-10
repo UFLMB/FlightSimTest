@@ -146,11 +146,11 @@ export function createAircraft(scene) {
       const gearExtension = Math.max(0, Math.min(1, -model.gear / 2));
       gearGroup.visible = gearExtension > .02;
       gearGroup.scale.y = Math.max(.02, gearExtension);
-      propeller.rotation.z += dt * (12 + Math.abs(model.forwardSpeed) * 18);
-      leftAileron.rotation.z = model.roll * .45;
-      rightAileron.rotation.z = -model.roll * .45;
-      elevator.rotation.x = -model.pitch * .4;
-      rudder.rotation.y = model.yaw * .8;
+      propeller.rotation.z += dt * (18 + model.power * 115);
+      leftAileron.rotation.z = model.controls.roll * .22;
+      rightAileron.rotation.z = -model.controls.roll * .22;
+      elevator.rotation.x = -model.controls.pitch * .2;
+      rudder.rotation.y = model.controls.yaw * .28;
       root.visible = !model.broken;
     }
   };

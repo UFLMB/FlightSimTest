@@ -104,7 +104,7 @@ function updateCamera(dt) {
 
 function setCameraMode() {
   cameraMode = (cameraMode + 1) % cameraModes.length;
-  updateCamera(1 / 30);
+  updateCamera(1 / 60);
 }
 
 function restartFlight() {
@@ -146,14 +146,14 @@ function animate(now) {
   if (started) {
     input.update();
     accumulator += elapsed;
-    const fixedStep = 1 / 30;
+    const fixedStep = 1 / 60;
     let steps = 0;
-    while (accumulator >= fixedStep && steps < 4) {
+    while (accumulator >= fixedStep && steps < 8) {
       model.step(fixedStep, world.terrainHeightAt);
       accumulator -= fixedStep;
       steps++;
     }
-    if (steps === 4) accumulator = 0;
+    if (steps === 8) accumulator = 0;
   }
 
   aircraft.update(model, elapsed);

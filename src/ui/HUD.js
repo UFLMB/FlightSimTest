@@ -30,20 +30,20 @@ export class HUD {
 
   update(fps) {
     const m = this.model, n = this.nodes;
-    n.speed.textContent = String(Math.round(m.speed * 18));
+    n.speed.textContent = String(Math.round(m.indicatedAirspeed));
     n.altitude.textContent = String(Math.max(0, Math.round(m.position.y)));
-    const throttle = Math.round(Math.max(0, m.power) / .0295 * 100);
+    const throttle = m.throttlePercent;
     n.throttle.textContent = String(throttle);
     n.mobileThrottle.textContent = `${throttle}%`;
-    n.meter.style.width = `${Math.max(0, Math.min(100, m.power / .0295 * 100))}%`;
-    n.vertical.textContent = (m.velocity.y * 30).toFixed(1);
+    n.meter.style.width = `${Math.max(0, Math.min(100, m.power * 100))}%`;
+    n.vertical.textContent = m.verticalSpeed.toFixed(1);
     n.heading.textContent = String(Math.round(m.heading)).padStart(3, "0");
     n.compass.style.transform = `rotate(${m.heading}deg)`;
     n.status.textContent = m.broken ? "CRASHED" : m.speed > .05 ? "IN FLIGHT" : "ON GROUND";
     const gear = m.gear < -1.95 ? "DOWN" : m.gear > -.05 ? "UP" : "MOVING";
     n.gear.textContent = gear;
     n.mobileGear.textContent = gear;
-    n.fps.textContent = `30 HZ SIM / ${Math.round(fps)} FPS`;
+    n.fps.textContent = `60 HZ SIM / ${Math.round(fps)} FPS`;
   }
 }
 
