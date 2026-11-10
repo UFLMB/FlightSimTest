@@ -31,16 +31,16 @@
       <div class="flight-hint">S throttle · X reduce · ↑/↓ pitch · ←/→ roll · A/D rudder · W gear · C camera</div>
     </div>
     <section class="mobile-flight-controls" aria-label="Mobile flight controls">
-      <div class="mobile-stick-panel">
-        <div class="control-panel-heading"><span>FLIGHT CONTROL</span><small>DRAG TO STEER</small></div>
-        <div class="stick-base" role="application" aria-label="Virtual flight joystick. Drag up or down to pitch, left or right to bank.">
-          <span class="stick-direction direction-up">PITCH UP</span>
-          <span class="stick-direction direction-down">PITCH DOWN</span>
-          <span class="stick-direction direction-left">BANK LEFT</span>
-          <span class="stick-direction direction-right">BANK RIGHT</span>
-          <div class="stick-crosshair"></div>
-          <div id="stick-knob" class="stick-knob"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 14 5-5 5 5"/></svg></div>
+      <div class="mobile-gyro-panel">
+        <div class="control-panel-heading"><span>GYRO FLIGHT CONTROL</span><small id="gyro-state">STANDBY</small></div>
+        <div class="gyro-visual" aria-hidden="true">
+          <div class="gyro-ring gyro-ring-outer"></div><div class="gyro-ring gyro-ring-inner"></div>
+          <div id="gyro-indicator" class="gyro-indicator"><span></span></div>
+          <div class="gyro-axis gyro-axis-x"></div><div class="gyro-axis gyro-axis-y"></div>
+          <span class="gyro-label gyro-label-top">PITCH</span><span class="gyro-label gyro-label-side">BANK</span>
         </div>
+        <div class="gyro-actions"><button id="gyro-enable" class="gyro-enable" type="button">ENABLE GYRO</button><button id="gyro-calibrate" class="gyro-calibrate" type="button" disabled>CALIBRATE</button></div>
+        <div id="gyro-message" class="gyro-message">Hold your phone naturally, then enable motion control</div>
       </div>
       <div class="mobile-action-panel">
         <div class="control-panel-heading"><span>FLIGHT SYSTEMS</span><small>TOUCH CONTROLS</small></div>
@@ -61,7 +61,7 @@
         <p>Native 3D engine · Civil flight experience</p>
         <div class="start-specs"><span>25 × 25 WORLD GRID</span><span>FIXED 30 HZ PHYSICS</span><span>WEBGL RENDERER</span></div>
         <button id="start-button" type="button">START FLIGHT <span>↗</span></button>
-        <small>PC: keyboard · Mobile: left flight stick and right control panel</small>
+        <small>PC: keyboard · Mobile: gyro steering and flight systems</small>
       </div>
     </section>
     <section id="crash-screen" class="crash-screen hidden">
