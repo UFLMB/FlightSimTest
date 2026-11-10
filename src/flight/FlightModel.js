@@ -158,7 +158,9 @@ export class FlightModel {
 
     // Translational dynamics in SI units. While supported by the runway, the
     // ground reaction cancels gravity until aerodynamic lift can sustain flight.
-    if (this.onGround && this.force.y < 0) this.force.y = 0;
+    const wasOnGround = this.onGround;
+    if (wasOnGround && this.force.y < 0) this.force.y = 0;
+    const canLiftOff = wasOnGround && this.force.y > 0;
     this.velocity.addScaledVector(this.force, h / MASS);
     if (this.onGround) {
       const rollingFriction = input.brake ? 2.8 : 0.12;
@@ -177,7 +179,12 @@ export class FlightModel {
     const gearClearance = this.gear < -1.95 ? 2.05 : 0.72;
     const groundClearance = surface + gearClearance;
     const descendingRate = -this.velocity.y;
-    if (this.position.y <= groundClearance) {
+    if (wasOnGround && !canLiftOff) {
+      this.position.y = groundClearance;
+      this.velocity.y = 0;
+      this.onGround = true;
+      this.lastGroundContact = true;
+    } else if (this.position.y <= groundClearance) {
       const horizontalSpeed = Math.hypot(this.velocity.x, this.velocity.z);
       const hardLanding = descendingRate > 4.2 ||
         (this.gear > -1.95 && horizontalSpeed > 8) ||
