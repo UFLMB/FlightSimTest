@@ -49,9 +49,8 @@ export class HUD {
       if (n.weatherMode) n.weatherMode.textContent = this.weather.label;
       if (n.mobileWeatherMode) n.mobileWeatherMode.textContent = this.weather.label;
     }
-    const gear = m.gear < -1.95 ? "DOWN" : m.gear > -.05 ? "UP" : "MOVING";
-    n.gear.textContent = gear;
-    n.mobileGear.textContent = gear;
+    n.gear.textContent = "FIXED DOWN";
+    n.mobileGear.textContent = "FIXED";
     n.fps.textContent = `60 HZ SIM / ${Math.round(fps)} FPS`;
   }
 }
@@ -71,7 +70,6 @@ export class InputController {
       const key = event.key.toLowerCase();
       if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) event.preventDefault();
       this.keys.add(key);
-      if (key === "w" && !event.repeat) this.model.toggleGear();
       if (key === "c" && !event.repeat) document.dispatchEvent(new CustomEvent("camera-cycle"));
       if (key === "enter" && this.model.broken) document.dispatchEvent(new CustomEvent("flight-restart"));
     };
@@ -132,8 +130,6 @@ export class InputController {
     hold("mobile-brake", value => { this.touchBrake = value; });
     hold("mobile-rudder-left", value => { this.touchRudderLeft = value; });
     hold("mobile-rudder-right", value => { this.touchRudderRight = value; });
-    document.getElementById("mobile-gear")?.addEventListener("click", () => this.model.toggleGear());
-    document.getElementById("gear-button")?.addEventListener("click", () => this.model.toggleGear());
   }
 
   update() {
