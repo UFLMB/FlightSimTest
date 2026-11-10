@@ -374,9 +374,9 @@ export function createAircraft(scene) {
     update(model, dt) {
       root.position.copy(model.position);
       root.quaternion.copy(model.orientation);
-      const gearExtension = Math.max(0, Math.min(1, -model.gear / 2));
-      gearGroup.visible = gearExtension > .02;
-      gearGroup.scale.y = Math.max(.02, gearExtension);
+      // C172 landing gear is fixed; the procedural fallback mirrors the imported airframe.
+      gearGroup.visible = true;
+      gearGroup.scale.y = 1;
       propeller.rotation.z += dt * (18 + model.power * 115);
       if (this.detailedPropeller) this.detailedPropeller.rotation.z += dt * (18 + model.power * 115);
       leftAileron.rotation.z = model.controls.roll * .22;
