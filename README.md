@@ -11,7 +11,8 @@ The original **Flight Simulator 3D v2.8** Scratch project is preserved as a refe
 - Roll, pitch and yaw response with aerodynamic authority, damping and coordinated-turn tendency.
 - Ground contact, rolling resistance, braking and hard-landing detection.
 - Variable ambient wind and gusts affect angle of attack, lift, drag and indicated airspeed; the live wind readout reports direction and knots.
-- Original 25 × 25 terrain reference, procedural runway/airport, vegetation and living landscape.
+- Original 25 × 25 terrain reference, PBR grass/asphalt/concrete surfaces, detailed Cessna 172 GLB exterior with procedural fallback, procedural airport buildings, taxiway/runway lighting, vegetation, farmsteads, roads, wind turbines and animated birds.
+- CC BY 4.0 aircraft attribution and locally stored CC0 PBR texture maps are documented in `public/assets/aircraft/ATTRIBUTION.md`.
 - Civil aircraft only. No rocket, weapons or boost mechanic.
 - Keyboard controls on desktop and calibrated device gyroscope plus dedicated flight-systems controls on mobile.
 
@@ -20,7 +21,7 @@ The original **Flight Simulator 3D v2.8** Scratch project is preserved as a refe
 - `S`: increase throttle; `X`: reduce throttle; `Space`: brake.
 - Arrow up/down: pitch; arrow left/right: roll.
 - `A` / `D`: rudder.
-- `C`: camera cycle. The selected Cessna 172 uses fixed, non-retractable landing gear.
+- `C`: camera cycle. The selected Cessna 172 uses fixed, non-retractable landing gear; no retractable-gear control is exposed.
 - Mobile: enable and calibrate gyroscope for pitch/bank; use the touch flight panel for throttle, brake, rudder and camera.
 
 ## Realism roadmap
