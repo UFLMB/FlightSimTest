@@ -83,18 +83,24 @@ const desiredCameraPosition = new THREE.Vector3();
 const desiredLookAt = new THREE.Vector3();
 const forward = new THREE.Vector3();
 const cameraOffset = new THREE.Vector3();
+const worldUp = new THREE.Vector3(0, 1, 0);
 
 function updateCamera(dt) {
   const mode = cameraModes[cameraMode];
-  forward.set(0, 0, 1).applyQuaternion(model.orientation).normalize();
   if (cameraMode === 1) {
+    // Cockpit view follows the complete aircraft attitude.
+    forward.set(0, 0, 1).applyQuaternion(model.orientation).normalize();
     cameraOffset.copy(mode.offset).applyQuaternion(model.orientation);
     desiredCameraPosition.copy(model.position).add(cameraOffset);
     desiredLookAt.copy(model.position).addScaledVector(forward, 38);
   } else {
-    cameraOffset.copy(mode.offset).applyQuaternion(model.orientation);
+    // External cameras remain horizon-stabilised: heading is followed, but
+    // aircraft pitch and bank do not roll the entire chase-camera horizon.
+    forward.set(Math.sin(model.yaw), 0, Math.cos(model.yaw)).normalize();
+    cameraOffset.copy(mode.offset).applyAxisAngle(worldUp, model.yaw);
     desiredCameraPosition.copy(model.position).add(cameraOffset);
-    desiredLookAt.copy(model.position).addScaledVector(forward, 7).add(new THREE.Vector3(0, 1.2, 0));
+    desiredLookAt.copy(model.position).addScaledVector(forward, cameraMode === 2 ? 9 : 7);
+    desiredLookAt.y += 1.2;
   }
   const smoothing = 1 - Math.pow(.001, dt);
   camera.position.lerp(desiredCameraPosition, smoothing);
