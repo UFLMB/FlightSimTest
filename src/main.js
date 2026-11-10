@@ -121,6 +121,7 @@ window.addEventListener("resize", onResize);
 document.addEventListener("camera-cycle", setCameraMode);
 document.addEventListener("flight-restart", restartFlight);
 document.querySelector("#camera-button").addEventListener("click", setCameraMode);
+document.querySelector("#mobile-camera").addEventListener("click", setCameraMode);
 document.querySelector("#start-button").addEventListener("click", () => {
   started = true;
   document.querySelector("#start-screen").classList.add("hidden");
