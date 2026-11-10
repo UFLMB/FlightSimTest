@@ -173,6 +173,6 @@ test("weather presets produce distinct deterministic wind conditions", () => {
 
 test("weather preset cycling wraps to the first preset", () => {
   const weather = new WeatherSystem();
-  for (let i = 0; i < 5; i++) weather.nextPreset();
+  for (let i = 0; i < 4; i++) weather.nextPreset();
   assert.equal(weather.presetId, "calm");
 });
