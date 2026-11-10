@@ -186,7 +186,6 @@ export class FlightModel {
     } else if (this.position.y <= groundClearance) {
       const horizontalSpeed = Math.hypot(this.velocity.x, this.velocity.z);
       const hardLanding = descendingRate > 4.2 ||
-        false ||
         (Math.abs(this.roll) > 0.7 && horizontalSpeed > 6);
       this.position.y = groundClearance;
       if (hardLanding) {
