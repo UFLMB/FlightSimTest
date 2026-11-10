@@ -1,13 +1,17 @@
 {
-  "name": "flightsimtest",
+  "name": "flightsimtest-native",
   "private": true,
-  "version": "1.0.0",
-  "description": "Browser package of the original Flight Simulator 3D v2.8 Scratch project",
+  "version": "2.0.0",
+  "type": "module",
   "scripts": {
-    "build": "node scripts/package-project.cjs",
-    "analyze:scratch": "node scripts/analyze-scratch.mjs"
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "three": "0.180.0"
   },
   "devDependencies": {
-    "@turbowarp/packager": "3.14.0"
+    "vite": "7.1.12"
   }
 }
