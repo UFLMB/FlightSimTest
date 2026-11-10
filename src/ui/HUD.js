@@ -1,3 +1,14 @@
+const icon = (name) => {
+  const paths = {
+    up: '<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',
+    down: '<path d="m5 12 7 7 7-7"/><path d="M12 5v14"/>',
+    brake: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 12h6"/>',
+    gear: '<path d="M12 3v3m0 12v3m9-9h-3M6 12H3m15.36-6.36-2.12 2.12M7.76 16.24l-2.12 2.12m12.72 0-2.12-2.12M7.76 7.76 5.64 5.64"/>',
+    camera: '<path d="M14 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9"/><path d="m14 4 6 5m-6-5v6h6"/><circle cx="10" cy="13" r="3"/>'
+  };
+  return `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths[name]}</svg>`;
+};
+
 export class HUD {
   constructor(model) {
     this.model = model;
@@ -11,6 +22,8 @@ export class HUD {
       compass: document.querySelector("#compass-needle"),
       status: document.querySelector("#flight-status"),
       gear: document.querySelector("#gear-state"),
+      mobileGear: document.querySelector("#mobile-gear-state"),
+      mobileThrottle: document.querySelector("#mobile-throttle-value"),
       fps: document.querySelector("#fps")
     };
   }
@@ -19,13 +32,17 @@ export class HUD {
     const m = this.model, n = this.nodes;
     n.speed.textContent = String(Math.round(m.speed * 18));
     n.altitude.textContent = String(Math.max(0, Math.round(m.position.y)));
-    n.throttle.textContent = String(Math.round(Math.max(0, m.power) / .0295 * 100));
+    const throttle = Math.round(Math.max(0, m.power) / .0295 * 100);
+    n.throttle.textContent = String(throttle);
+    n.mobileThrottle.textContent = `${throttle}%`;
     n.meter.style.width = `${Math.max(0, Math.min(100, m.power / .0295 * 100))}%`;
     n.vertical.textContent = (m.velocity.y * 30).toFixed(1);
     n.heading.textContent = String(Math.round(m.heading)).padStart(3, "0");
     n.compass.style.transform = `rotate(${m.heading}deg)`;
     n.status.textContent = m.broken ? "CRASHED" : m.speed > .05 ? "IN FLIGHT" : "ON GROUND";
-    n.gear.textContent = m.gear < -1.95 ? "DOWN" : m.gear > -.05 ? "UP" : "MOVING";
+    const gear = m.gear < -1.95 ? "DOWN" : m.gear > -.05 ? "UP" : "MOVING";
+    n.gear.textContent = gear;
+    n.mobileGear.textContent = gear;
     n.fps.textContent = `30 HZ SIM / ${Math.round(fps)} FPS`;
   }
 }
@@ -35,8 +52,11 @@ export class InputController {
     this.model = model;
     this.keys = new Set();
     this.pointer = { x: 0, y: 0, active: false };
-    this.touchThrottle = false;
+    this.touchThrottleUp = false;
+    this.touchThrottleDown = false;
     this.touchBrake = false;
+    this.touchRudderLeft = false;
+    this.touchRudderRight = false;
     this.onKeyDown = event => {
       const key = event.key.toLowerCase();
       if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) event.preventDefault();
@@ -59,14 +79,15 @@ export class InputController {
         const rect = zone.getBoundingClientRect();
         const dx = event.clientX - (rect.left + rect.width / 2);
         const dy = event.clientY - (rect.top + rect.height / 2);
+        const max = Math.min(rect.width, rect.height) * .34;
         const length = Math.hypot(dx, dy);
-        const max = rect.width * .34;
         const scale = length > max ? max / length : 1;
         this.pointer.x = dx * scale / max;
         this.pointer.y = dy * scale / max;
-        knob.style.transform = `translate(${dx * scale}px,${dy * scale}px)`;
+        knob.style.transform = `translate3d(${dx * scale}px,${dy * scale}px,0)`;
       };
       zone.addEventListener("pointerdown", event => {
+        event.preventDefault();
         zone.setPointerCapture(event.pointerId);
         this.pointer.active = true;
         move(event);
@@ -76,38 +97,48 @@ export class InputController {
         this.pointer.active = false;
         this.pointer.x = 0;
         this.pointer.y = 0;
-        knob.style.transform = "translate(0,0)";
+        knob.style.transform = "translate3d(0,0,0)";
       };
       zone.addEventListener("pointerup", end);
       zone.addEventListener("pointercancel", end);
+      zone.addEventListener("lostpointercapture", end);
     }
 
     const hold = (id, callback) => {
       const element = document.getElementById(id);
       if (!element) return;
-      element.addEventListener("pointerdown", event => { event.preventDefault(); callback(true); });
-      for (const name of ["pointerup", "pointercancel", "pointerleave"]) {
-        element.addEventListener(name, () => callback(false));
-      }
+      element.addEventListener("pointerdown", event => {
+        event.preventDefault();
+        element.setPointerCapture(event.pointerId);
+        callback(true);
+      });
+      const end = () => callback(false);
+      element.addEventListener("pointerup", end);
+      element.addEventListener("pointercancel", end);
+      element.addEventListener("lostpointercapture", end);
     };
-    hold("mobile-throttle", value => { this.touchThrottle = value; });
+    hold("mobile-throttle-up", value => { this.touchThrottleUp = value; });
+    hold("mobile-throttle-down", value => { this.touchThrottleDown = value; });
     hold("mobile-brake", value => { this.touchBrake = value; });
+    hold("mobile-rudder-left", value => { this.touchRudderLeft = value; });
+    hold("mobile-rudder-right", value => { this.touchRudderRight = value; });
     document.getElementById("mobile-gear")?.addEventListener("click", () => this.model.toggleGear());
     document.getElementById("gear-button")?.addEventListener("click", () => this.model.toggleGear());
-    document.getElementById("rocket-button")?.addEventListener("click", () => this.model.toggleRocket());
   }
 
   update() {
     const keys = this.keys, stick = this.pointer;
-    const keyboardThrottle = keys.has("s") ? 1 : keys.has("x") ? -1 : 0;
-    this.model.setControl("throttle", keyboardThrottle || (this.touchThrottle ? 1 : 0));
+    const throttle = keys.has("s") || this.touchThrottleUp ? 1 :
+      keys.has("x") || this.touchThrottleDown ? -1 : 0;
+    this.model.setControl("throttle", throttle);
     this.model.setControl("brake", keys.has(" ") || this.touchBrake);
     this.model.setControl("pitch", Math.max(-1, Math.min(1,
       (keys.has("arrowdown") ? 1 : 0) - (keys.has("arrowup") ? 1 : 0) + stick.y)));
     this.model.setControl("roll", Math.max(-1, Math.min(1,
       (keys.has("arrowleft") ? 1 : 0) - (keys.has("arrowright") ? 1 : 0) + stick.x)));
-    this.model.setControl("yaw", (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0));
-    this.model.setControl("rocket", keys.has("r"));
+    this.model.setControl("yaw", Math.max(-1, Math.min(1,
+      (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0) +
+      (this.touchRudderRight ? 1 : 0) - (this.touchRudderLeft ? 1 : 0))));
   }
 
   dispose() {

@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#07111c">
-  <meta name="description" content="Native Three.js reconstruction of Flight Simulator 3D v2.8.">
+  <meta name="description" content="Native Three.js civil flight simulator.">
   <title>Flight Simulator 3D — Native Edition</title>
 </head>
 <body>
-  <main id="simulator" aria-label="Flight Simulator">
+  <main id="simulator" aria-label="Civil Flight Simulator">
     <canvas id="flight-canvas"></canvas>
     <div class="vignette"></div>
     <header class="topbar">
-      <div class="brand"><span class="brand-mark">FS</span><div><strong>FLIGHT SIMULATOR</strong><small>NATIVE EDITION · 3D</small></div></div>
+      <div class="brand"><span class="brand-mark">FS</span><div><strong>FLIGHT SIMULATOR</strong><small>NATIVE EDITION · CIVIL AVIATION</small></div></div>
       <div class="top-status"><span class="status-dot"></span><span id="flight-status">READY</span><span class="status-divider"></span><span id="camera-label">CHASE CAM</span></div>
     </header>
     <section class="telemetry" aria-label="Flight telemetry">
@@ -22,38 +22,53 @@
       <div class="telemetry-card"><span>VERTICAL SPEED</span><strong><b id="vertical-speed">0.0</b><small> M/S</small></strong></div>
     </section>
     <div class="crosshair" aria-hidden="true"><i></i><b></b></div>
-    <aside class="right-tools">
-      <button id="camera-button" class="tool-button" type="button"><span>CAM</span><b>C</b></button>
-      <button id="gear-button" class="tool-button" type="button"><span>GEAR</span><b id="gear-state">DOWN</b></button>
-      <button id="rocket-button" class="tool-button" type="button"><span>BOOST</span><b>R</b></button>
+    <aside class="right-tools" aria-label="Flight options">
+      <button id="camera-button" class="tool-button" type="button"><span>CAMERA</span><b>CHANGE</b></button>
+      <button id="gear-button" class="tool-button" type="button"><span>LANDING GEAR</span><b id="gear-state">DOWN</b></button>
     </aside>
     <div class="bottom-left">
       <div class="compass"><div id="compass-needle"></div><span>N</span><small>HDG <b id="heading">000</b>°</small></div>
-      <div class="flight-hint" id="flight-hint">S throttle · X reduce · ↑/↓ pitch · ←/→ roll · A/D yaw · W gear · C camera</div>
+      <div class="flight-hint">S throttle · X reduce · ↑/↓ pitch · ←/→ roll · A/D rudder · W gear · C camera</div>
     </div>
-    <section class="mobile-controls" aria-label="Touch flight controls">
-      <div class="stick-zone"><div class="stick-base"><div id="stick-knob" class="stick-knob"></div></div><span>FLIGHT</span></div>
-      <div class="mobile-actions">
-        <button id="mobile-throttle" class="action-button" type="button">THROTTLE <b>+</b></button>
-        <button id="mobile-brake" class="action-button" type="button">BRAKE <b>−</b></button>
-        <button id="mobile-gear" class="action-button" type="button">GEAR <b>W</b></button>
+    <section class="mobile-flight-controls" aria-label="Mobile flight controls">
+      <div class="mobile-stick-panel">
+        <div class="control-panel-heading"><span>FLIGHT CONTROL</span><small>DRAG TO STEER</small></div>
+        <div class="stick-base" role="application" aria-label="Virtual flight joystick. Drag up or down to pitch, left or right to bank.">
+          <span class="stick-direction direction-up">PITCH UP</span>
+          <span class="stick-direction direction-down">PITCH DOWN</span>
+          <span class="stick-direction direction-left">BANK LEFT</span>
+          <span class="stick-direction direction-right">BANK RIGHT</span>
+          <div class="stick-crosshair"></div>
+          <div id="stick-knob" class="stick-knob"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 14 5-5 5 5"/></svg></div>
+        </div>
+      </div>
+      <div class="mobile-action-panel">
+        <div class="control-panel-heading"><span>FLIGHT SYSTEMS</span><small>TOUCH CONTROLS</small></div>
+        <div class="mobile-control-grid">
+          <button id="mobile-throttle-up" class="mobile-control throttle-control" type="button" aria-label="Increase throttle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-7 7 7-7 7 7"/></svg><span>THROTTLE</span><b>+</b><small id="mobile-throttle-value">0%</small></button>
+          <button id="mobile-throttle-down" class="mobile-control" type="button" aria-label="Decrease throttle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14m-7-7 7 7 7-7"/></svg><span>REDUCE</span><b>−</b><small>POWER</small></button>
+          <button id="mobile-brake" class="mobile-control" type="button" aria-label="Apply brake"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9 12h6"/></svg><span>BRAKE</span><b>HOLD</b><small>GROUND</small></button>
+          <button id="mobile-gear" class="mobile-control" type="button" aria-label="Toggle landing gear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17h16M7 17l2-8h6l2 8M12 9V5m-3 0h6"/></svg><span>LANDING GEAR</span><b id="mobile-gear-state">DOWN</b><small>TOGGLE</small></button>
+          <button id="mobile-camera" class="mobile-control camera-control" type="button" aria-label="Change camera view"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/></svg><span>CAMERA</span><b>VIEW</b><small>CHANGE</small></button>
+          <div class="mobile-control rudder-control"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4v8"/></svg><span>RUDDER</span><div class="rudder-buttons"><button id="mobile-rudder-left" type="button" aria-label="Rudder left">◀</button><button id="mobile-rudder-right" type="button" aria-label="Rudder right">▶</button></div></div>
+        </div>
       </div>
     </section>
     <section id="start-screen" class="start-screen">
       <div class="start-panel">
-        <div class="eyebrow">UFLMB FLIGHT LABS <span>·</span> RECONSTRUCTION PROJECT</div>
+        <div class="eyebrow">UFLMB FLIGHT LABS <span>·</span> CIVIL AVIATION</div>
         <h1>FLIGHT<br><em>SIMULATOR</em></h1>
-        <p>Native 3D engine · Original flight-system reference</p>
+        <p>Native 3D engine · Civil flight experience</p>
         <div class="start-specs"><span>25 × 25 WORLD GRID</span><span>FIXED 30 HZ PHYSICS</span><span>WEBGL RENDERER</span></div>
         <button id="start-button" type="button">START FLIGHT <span>↗</span></button>
-        <small>PC: keyboard controls · Mobile: touch stick and throttle</small>
+        <small>PC: keyboard · Mobile: left flight stick and right control panel</small>
       </div>
     </section>
     <section id="crash-screen" class="crash-screen hidden">
       <div><span>FLIGHT TERMINATED</span><h2>IMPACT</h2><p>Press ENTER or tap below to restart from the runway.</p><button id="restart-button" type="button">RESTART FLIGHT</button></div>
     </section>
     <div id="loading" class="loading"><span class="loader-ring"></span><b>INITIALIZING 3D WORLD</b></div>
-    <footer class="footer"><span>FLIGHT SIMULATOR 3D · NATIVE ENGINE</span><span id="fps">30 HZ SIM / -- FPS</span></footer>
+    <footer class="footer"><span>FLIGHT SIMULATOR 3D · CIVIL AVIATION</span><span id="fps">30 HZ SIM / -- FPS</span></footer>
   </main>
   <script type="module" src="/src/main.js"></script>
 </body>
