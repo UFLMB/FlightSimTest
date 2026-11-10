@@ -130,10 +130,12 @@ export function createAirport(scene){
   const sign=new THREE.Group();sign.position.set(x,.12,z);
   const post=new THREE.Mesh(new THREE.CylinderGeometry(.055,.07,1.7,8),metal);post.position.y=.85;sign.add(post);
   const panel=new THREE.Mesh(new THREE.BoxGeometry(2.2,.82,.16),signFace);panel.position.y=1.85;sign.add(panel);
-  const canvas=document.createElement("canvas");canvas.width=256;canvas.height=96;
-  const ctx=canvas.getContext("2d");ctx.fillStyle="#164c39";ctx.fillRect(0,0,256,96);ctx.strokeStyle="#d8c98c";ctx.lineWidth=5;ctx.strokeRect(3,3,250,90);ctx.fillStyle="#fff3bf";ctx.font="bold 58px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(label,128,49);
-  const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
-  const lettering=new THREE.Mesh(new THREE.PlaneGeometry(1.9,.68),new THREE.MeshBasicMaterial({map:texture,transparent:true}));lettering.position.set(0,1.85,.091);sign.add(lettering);
+  if(typeof document!=="undefined"){
+   const canvas=document.createElement("canvas");canvas.width=256;canvas.height=96;
+   const ctx=canvas.getContext("2d");ctx.fillStyle="#164c39";ctx.fillRect(0,0,256,96);ctx.strokeStyle="#d8c98c";ctx.lineWidth=5;ctx.strokeRect(3,3,250,90);ctx.fillStyle="#fff3bf";ctx.font="bold 58px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(label,128,49);
+   const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
+   const lettering=new THREE.Mesh(new THREE.PlaneGeometry(1.9,.68),new THREE.MeshBasicMaterial({map:texture,transparent:true}));lettering.position.set(0,1.85,.091);sign.add(lettering);
+  }
   g.add(sign);return sign;
  };
  const taxiSigns=[addTaxiSign(24,2,"A"),addTaxiSign(4,112,"RWY")];
