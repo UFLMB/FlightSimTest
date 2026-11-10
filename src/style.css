@@ -40,3 +40,19 @@
 .gyro-message{min-height:22px;margin-top:6px;color:#9db1b9;font:6px/1.4 'DM Mono',monospace;text-align:center}
 @media(max-width:700px){.mobile-gyro-panel{padding:8px}.gyro-visual{width:min(100%,min(35vw,166px))}.gyro-actions button{height:28px;font-size:6.5px}}
 @media(max-height:560px) and (max-width:900px){.mobile-flight-controls{grid-template-columns:116px minmax(0,1fr)}.mobile-gyro-panel{padding:5px}.gyro-visual{width:min(100%,108px);margin:3px auto}.gyro-actions button{height:23px}.gyro-message{display:none}}
+
+/* Wide landscape phones and touch tablets */
+@media(pointer:coarse) and (min-width:701px){
+ .mobile-flight-controls{position:absolute;z-index:4;left:12px;right:12px;bottom:max(10px,env(safe-area-inset-bottom));display:grid!important;grid-template-columns:minmax(150px,.9fr) minmax(0,1.35fr);gap:10px;align-items:stretch;pointer-events:none}
+ .mobile-gyro-panel,.mobile-action-panel{min-width:0;padding:8px;background:rgba(5,15,24,.84);border:1px solid rgba(205,230,235,.22);border-radius:15px;backdrop-filter:blur(14px);pointer-events:auto}
+ .gyro-visual{width:min(100%,150px);margin:5px auto}
+ .gyro-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+ .gyro-actions button{height:29px;font:700 7px 'DM Mono',monospace}
+ .gyro-message{font:6px/1.4 'DM Mono',monospace}
+ .mobile-control-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(52px,1fr));gap:6px;margin-top:6px}
+ .mobile-control{position:relative;min-width:0;min-height:52px;padding:5px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:1px solid rgba(199,222,228,.25);border-radius:9px;background:linear-gradient(155deg,rgba(31,52,64,.94),rgba(10,24,35,.96));color:#e9f2f1;touch-action:none;user-select:none}
+ .mobile-control svg{width:17px;height:17px;fill:none;stroke:var(--cyan);stroke-width:1.8}
+ .mobile-control span{font:700 7px 'DM Mono',monospace;white-space:nowrap}.mobile-control b{font:700 9px 'DM Mono',monospace;color:var(--lime)}.mobile-control small{font:5.5px 'DM Mono',monospace;color:#8fa4ad}
+ .rudder-buttons{display:flex;gap:5px}.rudder-buttons button{width:32px;height:20px;border:1px solid rgba(184,230,107,.4);border-radius:5px;background:rgba(184,230,107,.12);color:var(--lime);touch-action:none}
+ .footer,.bottom-left{display:none}
+}
