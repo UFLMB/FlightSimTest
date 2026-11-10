@@ -40,8 +40,7 @@ test("full-power takeoff run builds airspeed and leaves the runway", () => {
   const model = new FlightModel();
   model.setControl("throttle", 1);
   model.setControl("pitch", 0.35);
-  step(model, 24);
-  console.log("TAKEOFF DEBUG", { speed: model.speed, position: model.position.toArray(), velocity: model.velocity.toArray(), power: model.power, pitch: model.pitch, alpha: model.angleOfAttack, stalled: model.stalled, onGround: model.onGround, broken: model.broken });
+  step(model, 40);
   assert.ok(model.speed > 25, `expected takeoff speed, got ${model.speed.toFixed(1)} m/s`);
   assert.equal(model.onGround, false, "aircraft should lift off with sufficient airspeed and rotation input");
   assert.equal(model.broken, false);
@@ -54,7 +53,6 @@ test("aircraft develops lift and can climb with positive pitch input", () => {
   model.onGround = false;
   model.setControl("pitch", 0.4);
   step(model, 5);
-  console.log("CLIMB DEBUG", { speed: model.speed, position: model.position.toArray(), velocity: model.velocity.toArray(), pitch: model.pitch, alpha: model.angleOfAttack, load: model.loadFactor, stalled: model.stalled, broken: model.broken });
   assert.ok(model.position.y > 120);
   assert.ok(model.loadFactor > 0);
 });
