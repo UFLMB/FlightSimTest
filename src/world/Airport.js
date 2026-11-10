@@ -38,7 +38,11 @@ export function createAirport(scene){
  const mast=new THREE.Mesh(new THREE.CylinderGeometry(.12,.2,7,8),metal);mast.position.set(-57,33.1,-28);g.add(mast);
  // Apron floodlights.
  const poleGeo=new THREE.CylinderGeometry(.16,.24,17,8);
- for(const [x,z] of [[8,-8],[101,-8],[8,75],[101,75]]){const p=new THREE.Mesh(poleGeo,metal);p.position.set(x,8.6,z);p.castShadow=true;g.add(p);const h=new THREE.Mesh(new THREE.BoxGeometry(2.4,.45,1.2),new THREE.MeshStandardMaterial({color:0xe6e3cb,emissive:0xffe2a3,emissiveIntensity:.45}));h.position.set(x,17.2,z);g.add(h);}
+ for(const [x,z] of [[8,-8],[101,-8],[8,75],[101,75]]){
+  const p=new THREE.Mesh(poleGeo,metal);p.position.set(x,8.6,z);p.castShadow=true;g.add(p);
+  const h=new THREE.Mesh(new THREE.BoxGeometry(2.4,.45,1.2),new THREE.MeshStandardMaterial({color:0xe6e3cb,emissive:0xffe2a3,emissiveIntensity:.45}));h.position.set(x,17.2,z);g.add(h);
+  const glow=new THREE.PointLight(0xffe7b2,1.4,58,2);glow.position.set(x,16.7,z);g.add(glow);
+}
  // Runway edge and threshold lamps.
  const lampMat=new THREE.MeshStandardMaterial({color:0x9daeb2,metalness:.5,roughness:.3,emissive:0x9acbce,emissiveIntensity:.35});
  const lampGeo=new THREE.CylinderGeometry(.13,.18,.24,8);
