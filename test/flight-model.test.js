@@ -13,7 +13,8 @@ test("original 25 by 25 terrain reference remains intact", () => {
   assert.equal(TERRAIN_GRID.length, 625);
   assert.equal(tileAt(0, 5), -2);
   assert.equal(tileAt(80, 0), -1);
-  assert.equal(terrainHeightAt(0, 400), 13);
+  assert.equal(terrainHeightAt(80, 400), 12);
+  assert.equal(terrainHeightAt(0, 400), 0, "extended runway corridor must remain level");
   assert.equal(terrainHeightAt(0, 5), 0);
 });
 
@@ -42,9 +43,10 @@ test("full-power takeoff run builds airspeed and leaves the runway", () => {
   const model = new FlightModel();
   model.setControl("throttle", 1);
   model.setControl("pitch", 0.35);
-  step(model, 40);
+  step(model, 24);
   assert.ok(model.speed > 25, `expected takeoff speed, got ${model.speed.toFixed(1)} m/s`);
   assert.equal(model.onGround, false, "aircraft should lift off with sufficient airspeed and rotation input");
+  assert.ok(model.position.z < 475, "aircraft should become airborne before the far runway threshold");
   assert.equal(model.broken, false);
 });
 
