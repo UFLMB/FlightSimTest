@@ -147,7 +147,7 @@ export class FlightModel {
     this.pitch = clamp(this.pitch + this.pitchRate * h, -1.25, 1.25);
     this.roll = wrapAngle(this.roll + this.rollRate * h);
     this.yaw = wrapAngle(this.yaw + this.yawRate * h);
-    this.euler.set(this.pitch, this.yaw, this.roll, "YXZ");
+    this.euler.set(-this.pitch, this.yaw, this.roll, "YXZ");
     this.orientation.setFromEuler(this.euler).normalize();
 
     // Landing gear travel is animated and contributes real aerodynamic drag.
