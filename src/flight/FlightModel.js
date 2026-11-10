@@ -13,7 +13,6 @@ const MAX_THRUST = 3600;
 const GRAVITY = 9.80665;
 const STALL_ANGLE = 15 * RAD;
 const GEAR_DOWN = -2;
-const GEAR_UP = 0;
 const ZERO_WIND = new Vector3();
 
 /**
@@ -68,10 +67,9 @@ export class FlightModel {
     if (name in this.controls) this.controls[name] = typeof value === "boolean" ? value : clamp(Number(value) || 0, -1, 1);
   }
 
-  toggleGear() {
-    if (this.gearState !== 0) return;
-    this.gearState = this.gear > -1 ? -0.9 : 0.9;
-  }
+  // The selected Cessna 172 airframe has fixed tricycle landing gear.
+  // Keep the method as a compatibility-safe no-op for old UI integrations.
+  toggleGear() { return false; }
 
   get speed() { return this.velocity.length(); }
   get indicatedAirspeed() { return this.airspeed * 1.943844; }
@@ -103,7 +101,7 @@ export class FlightModel {
     this.angleOfAttack = Math.atan2(-vertical, Math.max(0.1, longitudinal));
     this.sideslip = Math.atan2(lateral, Math.max(0.1, Math.abs(longitudinal)));
     const q = 0.5 * AIR_DENSITY * speed * speed;
-    const gearDown = this.gear < -1.95 || this.gearState < 0;
+    const gearDown = true;
 
     // Lift curve with a progressive post-stall loss rather than an arcade lift boost.
     const alpha = this.angleOfAttack;
@@ -155,11 +153,7 @@ export class FlightModel {
     this.euler.set(-this.pitch, this.yaw, this.roll, "YXZ");
     this.orientation.setFromEuler(this.euler).normalize();
 
-    // Landing gear travel is animated and contributes real aerodynamic drag.
-    if (this.gearState !== 0) {
-      this.gear = clamp(this.gear + this.gearState * h, GEAR_DOWN, GEAR_UP);
-      if (this.gear === GEAR_DOWN || this.gear === GEAR_UP) this.gearState = 0;
-    }
+    // Fixed landing gear: no retraction or extension mechanism exists on this C172.
 
     // Translational dynamics in SI units. While supported by the runway, the
     // ground reaction cancels gravity until aerodynamic lift can sustain flight.
@@ -181,7 +175,7 @@ export class FlightModel {
     this.position.addScaledVector(this.velocity, h);
 
     const surface = terrainHeightAt(this.position.x, this.position.z);
-    const gearClearance = this.gear < -1.95 ? 2.05 : 0.72;
+    const gearClearance = 2.05;
     const groundClearance = surface + gearClearance;
     const descendingRate = -this.velocity.y;
     if (wasOnGround && !canLiftOff) {
@@ -192,7 +186,6 @@ export class FlightModel {
     } else if (this.position.y <= groundClearance) {
       const horizontalSpeed = Math.hypot(this.velocity.x, this.velocity.z);
       const hardLanding = descendingRate > 4.2 ||
-        (this.gear > -1.95 && horizontalSpeed > 8) ||
         (Math.abs(this.roll) > 0.7 && horizontalSpeed > 6);
       this.position.y = groundClearance;
       if (hardLanding) {

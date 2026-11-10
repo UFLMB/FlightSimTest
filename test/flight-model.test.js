@@ -83,14 +83,13 @@ test("roll control banks the aircraft and rudder coordinates heading", () => {
   assert.ok(Number.isFinite(model.heading));
 });
 
-test("landing gear transitions smoothly between endpoints", () => {
+test("Cessna 172 landing gear remains fixed down", () => {
   const model = new FlightModel();
-  model.toggleGear();
-  step(model, 3);
-  assert.equal(model.gear, 0);
-  model.toggleGear();
+  assert.equal(model.gear, -2);
+  assert.equal(model.toggleGear(), false, "fixed gear cannot be retracted");
   step(model, 3);
   assert.equal(model.gear, -2);
+  assert.equal(model.gearState, 0);
 });
 
 test("hard landing is detected and terminates the flight", () => {
