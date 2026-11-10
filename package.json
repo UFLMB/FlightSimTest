@@ -1,0 +1,13 @@
+{
+  "name": "flightsimtest",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Browser package of the original Flight Simulator 3D v2.8 Scratch project",
+  "scripts": {
+    "build": "node scripts/package-project.cjs",
+    "analyze:scratch": "node scripts/analyze-scratch.mjs"
+  },
+  "devDependencies": {
+    "@turbowarp/packager": "3.14.0"
+  }
+}
