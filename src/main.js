@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { Sky } from "three/addons/objects/Sky.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import "./style.css";
 import { FlightModel } from "./flight/FlightModel.js";
 import { WeatherSystem } from "./flight/WeatherSystem.js";
@@ -63,6 +64,36 @@ const model = new FlightModel();
 const weather = new WeatherSystem();
 const world = createWorld(scene);
 const aircraft = createAircraft(scene);
+const aircraftAssetStatus = document.querySelector("#aircraft-model-status");
+const aircraftLoader = new GLTFLoader();
+let initialSceneReady = false;
+const finishInitialSceneLoad = () => {
+  if (initialSceneReady) return;
+  initialSceneReady = true;
+  applyWeatherVisuals();
+  document.querySelector("#loading").classList.add("done");
+};
+aircraftLoader.load(
+  `${import.meta.env.BASE_URL}assets/aircraft/c172.glb`,
+  gltf => {
+    try {
+      const result = aircraft.attachDetailedModel(gltf.scene);
+      aircraftAssetStatus.textContent = `C172 3D MODEL · ${result.meshCount} MESHES`;
+      aircraftAssetStatus.classList.add("asset-loaded");
+    } catch (error) {
+      console.warn("Detailed C172 model rejected; using procedural fallback.", error);
+      aircraftAssetStatus.textContent = "PROCEDURAL BACKUP";
+      finishInitialSceneLoad();
+    }
+    finishInitialSceneLoad();
+  },
+  undefined,
+  error => {
+    console.warn("C172 GLB could not be loaded; using procedural aircraft.", error);
+    aircraftAssetStatus.textContent = "PROCEDURAL BACKUP";
+    finishInitialSceneLoad();
+  }
+);
 const hud = new HUD(model, weather);
 const gyro = new GyroController();
 const input = new InputController(model, gyro);
@@ -198,6 +229,4 @@ function animate(now) {
   renderer.render(scene, camera);
 }
 
-applyWeatherVisuals();
-document.querySelector("#loading").classList.add("done");
 requestAnimationFrame(animate);

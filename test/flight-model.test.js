@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { FlightModel } from "../src/flight/FlightModel.js";
 import { WeatherSystem } from "../src/flight/WeatherSystem.js";
-import { Vector3 } from "three";
+import { Vector3, Group, Mesh, BoxGeometry, MeshBasicMaterial } from "three";
 import { createAircraft, instrumentNeedleAngles } from "../src/aircraft/Aircraft.js";
 import { Scene } from "three";
 import { TERRAIN_GRID, tileAt, terrainHeightAt } from "../src/world/World.js";
@@ -132,7 +132,8 @@ test("civil airframe builds cockpit instruments, glazing and control surfaces", 
   const model = new FlightModel();
   aircraft.update(model, 1 / 60);
   assert.equal(aircraft.instrumentNeedles.length, 6);
-  assert.ok(aircraft.root.children.length > 35);
+  assert.ok(aircraft.proceduralExterior.children.length > 25);
+  assert.ok(aircraft.cockpit.children.length >= 9);
   assert.equal(aircraft.gearGroup.visible, true);
   assert.equal(scene.children.includes(aircraft.root), true);
 });
@@ -188,4 +189,20 @@ test("airport includes taxiway lighting, PAPI guidance, parking stands and ramp 
   assert.equal(airport.userData.detailFeatures.serviceVehicles, 2);
   assert.ok(airport.userData.windSock, "windsock is exposed for live wind-direction animation");
   assert.ok(scene.children.includes(airport));
+});
+
+
+test("detailed C172 GLB attachment aligns the airframe and keeps procedural fallback safe", () => {
+  const scene = new Scene();
+  const aircraft = createAircraft(scene);
+  const imported = new Group();
+  imported.add(new Mesh(new BoxGeometry(8, 2, 11), new MeshBasicMaterial()));
+  const result = aircraft.attachDetailedModel(imported);
+  assert.equal(aircraft.detailedModel, imported);
+  assert.equal(aircraft.proceduralExterior.visible, false);
+  assert.equal(scene.children.includes(aircraft.root), true);
+  assert.equal(aircraft.root.children.includes(imported), true);
+  assert.ok(result.meshCount === 1);
+  assert.ok(Math.abs(result.visibleWingspan - 10.98) < .01);
+  assert.ok(Number.isFinite(imported.position.y));
 });
