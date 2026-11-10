@@ -106,7 +106,7 @@ export class InputController {
       (keys.has("arrowdown") ? 1 : 0) - (keys.has("arrowup") ? 1 : 0) + stick.y)));
     this.model.setControl("roll", Math.max(-1, Math.min(1,
       (keys.has("arrowleft") ? 1 : 0) - (keys.has("arrowright") ? 1 : 0) + stick.x)));
-    this.model.setControl("yaw", (keys.has("a") ? 1 : 0) - (keys.has("d") ? 1 : 0));
+    this.model.setControl("yaw", (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0));
     this.model.setControl("rocket", keys.has("r"));
   }
 
