@@ -145,11 +145,21 @@ function addRunway(scene) {
     edge.position.set(x, .07, 80);
     group.add(edge);
   }
-  for (const x of [-12, -8, -4, 4, 8, 12]) {
-    const threshold = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 15), paint);
-    threshold.rotation.x = -Math.PI / 2;
-    threshold.position.set(x, .072, -49);
-    group.add(threshold);
+  for (const z of [-49, 209]) {
+    for (const x of [-16, -12, -8, -4, 4, 8, 12, 16]) {
+      const threshold = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 15), paint);
+      threshold.rotation.x = -Math.PI / 2;
+      threshold.position.set(x, .072, z);
+      group.add(threshold);
+    }
+  }
+  for (const z of [-18, -4, 164, 180]) {
+    for (const x of [-13, -9, 9, 13]) {
+      const touchdown = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 5), paint);
+      touchdown.rotation.x = -Math.PI / 2;
+      touchdown.position.set(x, .073, z);
+      group.add(touchdown);
+    }
   }
   scene.add(group);
   return group;
