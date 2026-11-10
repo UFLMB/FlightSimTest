@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#07111c">
+  <meta name="description" content="Native Three.js reconstruction of Flight Simulator 3D v2.8.">
+  <title>Flight Simulator 3D — Native Edition</title>
+</head>
+<body>
+  <main id="simulator" aria-label="Flight Simulator">
+    <canvas id="flight-canvas"></canvas>
+    <div class="vignette"></div>
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">FS</span><div><strong>FLIGHT SIMULATOR</strong><small>NATIVE EDITION · 3D</small></div></div>
+      <div class="top-status"><span class="status-dot"></span><span id="flight-status">READY</span><span class="status-divider"></span><span id="camera-label">CHASE CAM</span></div>
+    </header>
+    <section class="telemetry" aria-label="Flight telemetry">
+      <div class="telemetry-card"><span>INDICATED SPEED</span><strong><b id="speed">0</b><small> KT</small></strong></div>
+      <div class="telemetry-card"><span>ALTITUDE</span><strong><b id="altitude">2</b><small> M</small></strong></div>
+      <div class="telemetry-card"><span>THROTTLE</span><strong><b id="throttle">0</b><small>%</small></strong><div class="meter"><i id="throttle-meter"></i></div></div>
+      <div class="telemetry-card"><span>VERTICAL SPEED</span><strong><b id="vertical-speed">0.0</b><small> M/S</small></strong></div>
+    </section>
+    <div class="crosshair" aria-hidden="true"><i></i><b></b></div>
+    <aside class="right-tools">
+      <button id="camera-button" class="tool-button" type="button"><span>CAM</span><b>C</b></button>
+      <button id="gear-button" class="tool-button" type="button"><span>GEAR</span><b id="gear-state">DOWN</b></button>
+      <button id="rocket-button" class="tool-button" type="button"><span>BOOST</span><b>R</b></button>
+    </aside>
+    <div class="bottom-left">
+      <div class="compass"><div id="compass-needle"></div><span>N</span><small>HDG <b id="heading">000</b>°</small></div>
+      <div class="flight-hint" id="flight-hint">S throttle · X reduce · ↑/↓ pitch · ←/→ roll · A/D yaw · W gear · C camera</div>
+    </div>
+    <section class="mobile-controls" aria-label="Touch flight controls">
+      <div class="stick-zone"><div class="stick-base"><div id="stick-knob" class="stick-knob"></div></div><span>FLIGHT</span></div>
+      <div class="mobile-actions">
+        <button id="mobile-throttle" class="action-button" type="button">THROTTLE <b>+</b></button>
+        <button id="mobile-brake" class="action-button" type="button">BRAKE <b>−</b></button>
+        <button id="mobile-gear" class="action-button" type="button">GEAR <b>W</b></button>
+      </div>
+    </section>
+    <section id="start-screen" class="start-screen">
+      <div class="start-panel">
+        <div class="eyebrow">UFLMB FLIGHT LABS <span>·</span> RECONSTRUCTION PROJECT</div>
+        <h1>FLIGHT<br><em>SIMULATOR</em></h1>
+        <p>Native 3D engine · Original flight-system reference</p>
+        <div class="start-specs"><span>25 × 25 WORLD GRID</span><span>FIXED 30 HZ PHYSICS</span><span>WEBGL RENDERER</span></div>
+        <button id="start-button" type="button">START FLIGHT <span>↗</span></button>
+        <small>PC: keyboard controls · Mobile: touch stick and throttle</small>
+      </div>
+    </section>
+    <section id="crash-screen" class="crash-screen hidden">
+      <div><span>FLIGHT TERMINATED</span><h2>IMPACT</h2><p>Press ENTER or tap below to restart from the runway.</p><button id="restart-button" type="button">RESTART FLIGHT</button></div>
+    </section>
+    <div id="loading" class="loading"><span class="loader-ring"></span><b>INITIALIZING 3D WORLD</b></div>
+    <footer class="footer"><span>FLIGHT SIMULATOR 3D · NATIVE ENGINE</span><span id="fps">30 HZ SIM / -- FPS</span></footer>
+  </main>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
