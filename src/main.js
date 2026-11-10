@@ -83,6 +83,7 @@ const desiredCameraPosition = new THREE.Vector3();
 const desiredLookAt = new THREE.Vector3();
 const forward = new THREE.Vector3();
 const cameraOffset = new THREE.Vector3();
+const worldUp = new THREE.Vector3(0, 1, 0);
 
 function updateCamera(dt) {
   const mode = cameraModes[cameraMode];
@@ -96,7 +97,7 @@ function updateCamera(dt) {
     // External cameras remain horizon-stabilised: heading is followed, but
     // aircraft pitch and bank do not roll the entire chase-camera horizon.
     forward.set(Math.sin(model.yaw), 0, Math.cos(model.yaw)).normalize();
-    cameraOffset.copy(mode.offset).applyAxisAngle(new THREE.Vector3(0, 1, 0), model.yaw);
+    cameraOffset.copy(mode.offset).applyAxisAngle(worldUp, model.yaw);
     desiredCameraPosition.copy(model.position).add(cameraOffset);
     desiredLookAt.copy(model.position).addScaledVector(forward, cameraMode === 2 ? 9 : 7);
     desiredLookAt.y += 1.2;
