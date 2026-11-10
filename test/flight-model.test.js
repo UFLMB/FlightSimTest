@@ -39,17 +39,19 @@ test("engine spool responds smoothly and remains within throttle limits", () => 
 test("full-power takeoff run builds airspeed and leaves the runway", () => {
   const model = new FlightModel();
   model.setControl("throttle", 1);
+  model.setControl("pitch", 0.35);
   step(model, 24);
   assert.ok(model.speed > 25, `expected takeoff speed, got ${model.speed.toFixed(1)} m/s`);
+  assert.equal(model.onGround, false, "aircraft should lift off with sufficient airspeed and rotation input");
   assert.equal(model.broken, false);
 });
 
 test("aircraft develops lift and can climb with positive pitch input", () => {
   const model = new FlightModel();
   model.position.set(0, 120, 5);
-  model.velocity.set(0, 0, 38);
+  model.velocity.set(0, 0, 44);
   model.onGround = false;
-  model.setControl("pitch", 0.25);
+  model.setControl("pitch", 0.4);
   step(model, 5);
   assert.ok(model.position.y > 120);
   assert.ok(model.loadFactor > 0);
