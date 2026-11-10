@@ -45,7 +45,9 @@ export function tileAt(x, z) {
 
 export function terrainHeightAt(x, z) {
   const code = tileAt(x, z);
-  if (code <= 0 || (Math.abs(x) < 190 && z > -85 && z < 125)) return 0;
+  const airportFlat = Math.abs(x) < 190 && z > -85 && z < 125;
+  const runwayFlat = Math.abs(x) < 26 && z > -130 && z < 480;
+  if (code <= 0 || airportFlat || runwayFlat) return 0;
   const cx = Math.round(x / TILE_SIZE) * TILE_SIZE;
   const cz = Math.round(z / TILE_SIZE) * TILE_SIZE;
   const distance = Math.max(Math.abs(x - cx), Math.abs(z - cz));
@@ -93,7 +95,8 @@ function createTerrainMesh() {
       const x = -HALF + ix * step, z = -HALF + iz * step;
       const hill = terrainHeightAt(x, z);
       const airportFlat = Math.abs(x) < 200 && z > -90 && z < 130;
-      const micro = airportFlat ? 0 : (Math.sin(x * .018) * Math.cos(z * .014) + Math.sin((x + z) * .009) * .5 + Math.sin(x * .071 + z * .043) * .18) * .34;
+      const runwayFlat = Math.abs(x) < 26 && z > -130 && z < 480;
+      const micro = (airportFlat || runwayFlat) ? 0 : (Math.sin(x * .018) * Math.cos(z * .014) + Math.sin((x + z) * .009) * .5 + Math.sin(x * .071 + z * .043) * .18) * .34;
       positions.push(x, hill + micro, z);
       uvs.push(ix / segments * 18, iz / segments * 18);
       if (tileAt(x, z) === -1) color.setRGB(.16, .29, .28);
@@ -122,30 +125,31 @@ function createTerrainMesh() {
 
 function addRunway(scene) {
   const group = new THREE.Group();
-  // Original terrain codes -2 form a 40 m wide strip at x=0, z=-40..200.
-  const shoulder = new THREE.Mesh(new THREE.PlaneGeometry(48, 280), new THREE.MeshStandardMaterial({ color: 0x777c68, roughness: 1 }));
+  // Extended 600 m paved runway: threshold -125 m to 475 m.
+  const runwayLength = 600, runwayCenter = 175;
+  const shoulder = new THREE.Mesh(new THREE.PlaneGeometry(48, runwayLength), new THREE.MeshStandardMaterial({ color: 0x777c68, roughness: 1 }));
   shoulder.rotation.x = -Math.PI / 2;
-  shoulder.position.set(0, .025, 80);
+  shoulder.position.set(0, .025, runwayCenter);
   group.add(shoulder);
-  const asphalt = new THREE.Mesh(new THREE.PlaneGeometry(40, 280), new THREE.MeshStandardMaterial({ color: 0x343b40, roughness: .94 }));
+  const asphalt = new THREE.Mesh(new THREE.PlaneGeometry(40, runwayLength), new THREE.MeshStandardMaterial({ color: 0x343b40, roughness: .94 }));
   asphalt.rotation.x = -Math.PI / 2;
-  asphalt.position.set(0, .055, 80);
+  asphalt.position.set(0, .055, runwayCenter);
   asphalt.receiveShadow = true;
   group.add(asphalt);
   const paint = new THREE.MeshBasicMaterial({ color: 0xe4e5d9 });
-  for (let z = -42; z <= 202; z += 30) {
+  for (let z = -112; z <= 462; z += 30) {
     const dash = new THREE.Mesh(new THREE.PlaneGeometry(.85, 14), paint);
     dash.rotation.x = -Math.PI / 2;
     dash.position.set(0, .068, z);
     group.add(dash);
   }
   for (const x of [-18, 18]) {
-    const edge = new THREE.Mesh(new THREE.PlaneGeometry(.6, 280), paint);
+    const edge = new THREE.Mesh(new THREE.PlaneGeometry(.6, runwayLength), paint);
     edge.rotation.x = -Math.PI / 2;
-    edge.position.set(x, .07, 80);
+    edge.position.set(x, .07, runwayCenter);
     group.add(edge);
   }
-  for (const z of [-49, 209]) {
+  for (const z of [-120, 470]) {
     for (const x of [-16, -12, -8, -4, 4, 8, 12, 16]) {
       const threshold = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 15), paint);
       threshold.rotation.x = -Math.PI / 2;
@@ -153,7 +157,7 @@ function addRunway(scene) {
       group.add(threshold);
     }
   }
-  for (const z of [-18, -4, 164, 180]) {
+  for (const z of [-92, -72, 300, 320]) {
     for (const x of [-13, -9, 9, 13]) {
       const touchdown = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 5), paint);
       touchdown.rotation.x = -Math.PI / 2;

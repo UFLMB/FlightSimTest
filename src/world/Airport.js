@@ -46,8 +46,8 @@ export function createAirport(scene){
  // Runway edge and threshold lamps.
  const lampMat=new THREE.MeshStandardMaterial({color:0x9daeb2,metalness:.5,roughness:.3,emissive:0x9acbce,emissiveIntensity:.35});
  const lampGeo=new THREE.CylinderGeometry(.13,.18,.24,8);
- for(const x of [-21.5,21.5])for(let z=-48;z<=208;z+=12){const l=new THREE.Mesh(lampGeo,lampMat);l.position.set(x,.18,z);g.add(l);}
- for(const x of [-16,-12,-8,-4,4,8,12,16]){const l=new THREE.Mesh(lampGeo,new THREE.MeshStandardMaterial({color:0xe6e8d7,emissive:0xe9f5ed,emissiveIntensity:.9}));l.position.set(x,.18,-53);g.add(l);}
+ for(const x of [-21.5,21.5])for(let z=-120;z<=470;z+=12){const l=new THREE.Mesh(lampGeo,lampMat);l.position.set(x,.18,z);g.add(l);}
+ for(const x of [-16,-12,-8,-4,4,8,12,16]){const l=new THREE.Mesh(lampGeo,new THREE.MeshStandardMaterial({color:0xe6e8d7,emissive:0xe9f5ed,emissiveIntensity:.9}));l.position.set(x,.18,-125);g.add(l);}
  // Windsock and access road.
  const sockPole=new THREE.Mesh(new THREE.CylinderGeometry(.08,.12,6,7),metal);sockPole.position.set(-78,3,36);g.add(sockPole);
  const sock=new THREE.Mesh(new THREE.ConeGeometry(.7,4.5,8,1,true),new THREE.MeshStandardMaterial({color:0xf1eee0,side:THREE.DoubleSide}));sock.rotation.z=-Math.PI/2;sock.position.set(-76,5.4,36);g.add(sock);

@@ -103,8 +103,8 @@ export class FlightModel {
     // Lift curve with a progressive post-stall loss rather than an arcade lift boost.
     const alpha = this.angleOfAttack;
     const absAlpha = Math.abs(alpha);
-    const clLinear = 0.24 + 5.1 * alpha + input.pitch * 0.32;
-    const clAtStall = 0.24 + 5.1 * STALL_ANGLE;
+    const clLinear = 0.32 + 6.0 * alpha + input.pitch * 0.48;
+    const clAtStall = 0.32 + 6.0 * STALL_ANGLE;
     let cl;
     if (absAlpha <= STALL_ANGLE) cl = clamp(clLinear, -0.85, 1.62);
     else {
