@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { FlightModel } from "../src/flight/FlightModel.js";
+import { createAircraft } from "../src/aircraft/Aircraft.js";
+import { Scene } from "three";
 import { TERRAIN_GRID, tileAt, terrainHeightAt } from "../src/world/World.js";
 
 const step = (model, seconds, dt = 1 / 60) => {
@@ -99,4 +101,16 @@ test("civil aircraft exposes no rocket or boost controls", () => {
   assert.equal("rocket" in model.controls, false);
   assert.equal("rocketActive" in model, false);
   assert.equal(typeof model.toggleRocket, "undefined");
+});
+
+
+test("civil airframe builds cockpit instruments, glazing and control surfaces", () => {
+  const scene = new Scene();
+  const aircraft = createAircraft(scene);
+  const model = new FlightModel();
+  aircraft.update(model, 1 / 60);
+  assert.equal(aircraft.instrumentNeedles.length, 6);
+  assert.ok(aircraft.root.children.length > 35);
+  assert.equal(aircraft.gearGroup.visible, true);
+  assert.equal(scene.children.includes(aircraft.root), true);
 });
