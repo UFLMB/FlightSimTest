@@ -96,7 +96,7 @@ function createGroundDetailTexture() {
 }
 
 function createTerrainMesh() {
-  const segments = 280, step = WORLD_EXTENT / segments;
+  const segments = 180, step = WORLD_EXTENT / segments;
   const positions = [], colors = [], indices = [], uvs = [];
   const color = new THREE.Color();
   for (let iz = 0; iz <= segments; iz++) {
@@ -128,14 +128,13 @@ function createTerrainMesh() {
   geometry.computeVertexNormals();
   const grassColor = loadSurfaceTexture("grass-color.jpg", 1, 1, THREE.SRGBColorSpace);
   const grassNormal = loadSurfaceTexture("grass-normal.jpg", 1, 1);
-  const groundDetail = createGroundDetailTexture();
-  groundDetail.repeat.set(.1, .1);
   const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
-    map: grassColor, normalMap: grassNormal, normalScale: new THREE.Vector2(.72, .72),
-    vertexColors: true, roughness: .97, metalness: 0, bumpMap: groundDetail, bumpScale: .035
+    map: grassColor, normalMap: grassNormal, normalScale: new THREE.Vector2(.58, .58),
+    vertexColors: true, roughness: .97, metalness: 0
   }));
-  mesh.receiveShadow = true;
-  mesh.frustumCulled = false;
+  // The terrain is a static, large surface: shadow receiving here costs a
+  // full-screen shadow-map sample and is not needed for readable flight.
+  mesh.receiveShadow = false;
   return mesh;
 }
 
@@ -217,10 +216,14 @@ function addVegetation(scene) {
   }
   trunks.count = count;
   crowns.count = count;
-  trunks.castShadow = true;
-  crowns.castShadow = true;
-  trunks.receiveShadow = true;
+  // Hundreds of foliage instances are a major shadow-map cost on laptops.
+  // Their baked shading and PBR materials keep depth without 1,000+ shadow casters.
+  trunks.castShadow = false;
+  crowns.castShadow = false;
+  trunks.receiveShadow = false;
+  crowns.receiveShadow = false;
   scene.add(trunks, crowns);
+  return collisionTrees;
 }
 
 function addWater(scene) {
@@ -291,8 +294,20 @@ export function createWorld(scene) {
     { minX: 92, maxX: 96, minZ: 56, maxZ: 60, minY: 0, maxY: 4, type: "service vehicle" },
     { minX: 3, maxX: 7, minZ: 52, maxZ: 56, minY: 0, maxY: 4, type: "service vehicle" }
   ];
+  // Spatial hash: only inspect trees in the aircraft's local 40 m cells,
+  // not every tree on every 60 Hz physics tick.
+  const collisionCellSize = 40;
+  const treeGrid = new Map();
+  for (const tree of treeColliders) {
+    const gx = Math.floor((tree.x + HALF) / collisionCellSize);
+    const gz = Math.floor((tree.z + HALF) / collisionCellSize);
+    const key = gx + ":" + gz;
+    let bucket = treeGrid.get(key);
+    if (!bucket) treeGrid.set(key, bucket = []);
+    bucket.push(tree);
+  }
   const collisionAt = (x, y, z) => {
-    const aircraftRadius = 5.6; // C172 wing half-span plus a small safety margin.
+    const aircraftRadius = 5.6;
     if (!isInsideWorld(x, z, aircraftRadius)) return { type: "world boundary" };
     for (const obstacle of airportColliders) {
       if (y + 2.2 >= obstacle.minY && y - 2.2 <= obstacle.maxY &&
@@ -301,11 +316,19 @@ export function createWorld(scene) {
         return { type: obstacle.type };
       }
     }
-    for (const tree of treeColliders) {
-      if (y + 2.2 < tree.bottom || y - 2.2 > tree.top) continue;
-      const dx = x - tree.x, dz = z - tree.z;
-      const radius = aircraftRadius + tree.radius;
-      if (dx * dx + dz * dz < radius * radius) return { type: "tree" };
+    const gx = Math.floor((x + HALF) / collisionCellSize);
+    const gz = Math.floor((z + HALF) / collisionCellSize);
+    for (let ix = gx - 1; ix <= gx + 1; ix++) {
+      for (let iz = gz - 1; iz <= gz + 1; iz++) {
+        const bucket = treeGrid.get(ix + ":" + iz);
+        if (!bucket) continue;
+        for (const tree of bucket) {
+          if (y + 2.2 < tree.bottom || y - 2.2 > tree.top) continue;
+          const dx = x - tree.x, dz = z - tree.z;
+          const radius = aircraftRadius + tree.radius;
+          if (dx * dx + dz * dz < radius * radius) return { type: "tree" };
+        }
+      }
     }
     return null;
   };
