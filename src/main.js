@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { Sky } from "three/addons/objects/Sky.js";
 import "./style.css";
 import { FlightModel } from "./flight/FlightModel.js";
+import { WeatherSystem } from "./flight/WeatherSystem.js";
 import { createWorld } from "./world/World.js";
 import { createAircraft } from "./aircraft/Aircraft.js";
 import { HUD, InputController } from "./ui/HUD.js";
@@ -59,9 +60,10 @@ scene.add(sunlight);
 const camera = new THREE.PerspectiveCamera(64, window.innerWidth / window.innerHeight, .1, 2600);
 camera.position.set(0, 7, -18);
 const model = new FlightModel();
+const weather = new WeatherSystem();
 const world = createWorld(scene);
 const aircraft = createAircraft(scene);
-const hud = new HUD(model);
+const hud = new HUD(model, weather);
 const gyro = new GyroController();
 const input = new InputController(model, gyro);
 
@@ -143,13 +145,14 @@ function animate(now) {
     fpsStart = now;
   }
 
+  weather.update(now / 1000);
   if (started) {
     input.update();
     accumulator += elapsed;
     const fixedStep = 1 / 60;
     let steps = 0;
     while (accumulator >= fixedStep && steps < 8) {
-      model.step(fixedStep, world.terrainHeightAt);
+      model.step(fixedStep, world.terrainHeightAt, weather.wind);
       accumulator -= fixedStep;
       steps++;
     }
