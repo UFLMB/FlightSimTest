@@ -30,9 +30,7 @@ export class FlightModel {
     this.gear = -2;
     this.gearState = 0;
     this.broken = false;
-    this.rocketActive = false;
-    this.rocketCharge = 0;
-    this.controls = { pitch: 0, roll: 0, yaw: 0, throttle: 0, brake: false, rocket: false };
+    this.controls = { pitch: 0, roll: 0, yaw: 0, throttle: 0, brake: false };
     this.heading = 0;
     this.lastGroundContact = false;
     this.groundHeight = 0;
@@ -44,10 +42,6 @@ export class FlightModel {
 
   toggleGear() {
     this.gearState = this.gear > -1 ? -0.1 : 0.1;
-  }
-
-  toggleRocket() {
-    this.rocketActive = !this.rocketActive;
   }
 
   get forward() { return this._forward; }
@@ -132,12 +126,6 @@ export class FlightModel {
       this.lastGroundContact = true;
     } else {
       this.lastGroundContact = false;
-    }
-
-    if (input.rocket || this.rocketActive) this.rocketCharge = Math.max(this.rocketCharge, 1);
-    if (this.rocketCharge > 0) {
-      this.velocity.addScaledVector(this._forward, 0.055 * frames);
-      this.rocketCharge = Math.max(0, this.rocketCharge - 0.012 * frames);
     }
 
     this._headingVector.set(0, 0, 1).applyQuaternion(this.orientation);
