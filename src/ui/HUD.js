@@ -10,9 +10,8 @@ const icon = (name) => {
 };
 
 export class HUD {
-  constructor(model, gyro) {
+  constructor(model) {
     this.model = model;
-    this.gyro = gyro;
     this.nodes = {
       speed: document.querySelector("#speed"),
       altitude: document.querySelector("#altitude"),
@@ -49,8 +48,9 @@ export class HUD {
 }
 
 export class InputController {
-  constructor(model) {
+  constructor(model, gyro) {
     this.model = model;
+    this.gyro = gyro;
     this.keys = new Set();
     this.pointer = { x: 0, y: 0, active: false };
     this.touchThrottleUp = false;
